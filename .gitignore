@@ -1,0 +1,10 @@
+*.png
+*.jpg
+*.jpeg
+*.mp3
+*.wav
+*.mp4
+*.avi
+env/
+
+
