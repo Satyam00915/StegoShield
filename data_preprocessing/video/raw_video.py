@@ -2,10 +2,13 @@ import os
 import requests
 import json
 from tqdm import tqdm
+from dotenv import load_dotenv
 
-# Pexels API Key (Replace with your own API key)
-PEXELS_API_KEY = "72Wi1nHfwqZhaPwnxGMID0Eohinx62ISlsZ94Hr7ZdgureykwNVUv99D"
-PEXELS_URL = "https://api.pexels.com/videos/search"
+load_dotenv()
+
+# API Key and URL
+PEXELS_API_KEY = os.getenv("PEXELS_API_KEY")
+PEXELS_URL = os.getenv("PEXELS_URL")
 
 # Parameters
 NUM_VIDEOS = 1000

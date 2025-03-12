@@ -1,38 +1,54 @@
 import os
-import librosa
-import soundfile as sf
-import numpy as np
+import subprocess
+import imageio_ffmpeg
 
-# Paths
-input_folder = "dataset/audio/clean"
-output_folder = "dataset/audio/processed"
-os.makedirs(output_folder, exist_ok=True)
+# Auto-detect FFmpeg binary
+FFMPEG_PATH = imageio_ffmpeg.get_ffmpeg_exe()
 
-# Parameters
-target_sample_rate = 16000  # 16 kHz
-target_duration = 5  # seconds
+# Define paths based on your dataset structure
+PROJECT_DIR = "C:/old/college/sem 6/Special Project/Project/StegoShield"
+INPUT_FOLDER = os.path.join(PROJECT_DIR, "dataset/audio/clean")
+FIXED_MP3_FOLDER = os.path.join(PROJECT_DIR, "dataset/audio/fixed_mp3")
+CONVERTED_WAV_FOLDER = os.path.join(PROJECT_DIR, "dataset/audio/preprocessed")
 
-def preprocess_audio(file_path, output_path):
+# Ensure output directories exist
+os.makedirs(FIXED_MP3_FOLDER, exist_ok=True)
+os.makedirs(CONVERTED_WAV_FOLDER, exist_ok=True)
+
+# Function to fix MP3 metadata
+def fix_mp3_metadata(input_file, output_file):
     try:
-        # Load audio
-        audio, sr = librosa.load(file_path, sr=target_sample_rate)
-        
-        # Ensure fixed length (trim/pad)
-        target_length = target_sample_rate * target_duration
-        if len(audio) > target_length:
-            audio = audio[:target_length]  # Trim
-        else:
-            audio = np.pad(audio, (0, target_length - len(audio)))  # Pad
+        subprocess.run([
+            FFMPEG_PATH, "-i", input_file,
+            "-map_metadata", "-1", "-c:v", "copy", "-c:a", "copy",
+            output_file
+        ], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        print(f"✅ Fixed metadata: {input_file} -> {output_file}")
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Error fixing {input_file}: {e}")
 
-        # Save processed file
-        sf.write(output_path, audio, target_sample_rate)
-    except Exception as e:
-        print(f"Skipping {file_path}: {e}")
+# Function to convert MP3 to WAV (16kHz, mono)
+def convert_mp3_to_wav(input_file, output_file):
+    try:
+        subprocess.run([
+            FFMPEG_PATH, "-i", input_file,
+            "-ar", "16000", "-ac", "1", output_file
+        ], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        print(f"🎵 Converted: {input_file} -> {output_file}")
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Error converting {input_file}: {e}")
 
-# Process all audio files
-for file_name in os.listdir(input_folder):
-    input_path = os.path.join(input_folder, file_name)
-    output_path = os.path.join(output_folder, os.path.splitext(file_name)[0] + ".wav")
-    preprocess_audio(input_path, output_path)
+# Process all MP3 files in the clean audio folder
+for file_name in os.listdir(INPUT_FOLDER):
+    if file_name.lower().endswith(".mp3"):
+        input_path = os.path.join(INPUT_FOLDER, file_name)
+        fixed_mp3_path = os.path.join(FIXED_MP3_FOLDER, file_name)
+        converted_wav_path = os.path.join(CONVERTED_WAV_FOLDER, os.path.splitext(file_name)[0] + ".wav")
 
-print(f"✅ Audio preprocessing complete. Processed files saved in '{output_folder}'.")
+        # Fix metadata
+        fix_mp3_metadata(input_path, fixed_mp3_path)
+
+        # Convert to WAV
+        convert_mp3_to_wav(fixed_mp3_path, converted_wav_path)
+
+print("✅ Audio preprocessing complete!")

@@ -2,10 +2,13 @@ import os
 import requests
 import json
 from tqdm import tqdm
+from dotenv import load_dotenv
 
-# Freesound API Key (Replace with your own API key)
-FREESOUND_API_KEY = "mlGSpFMDbsEOkCftqo1kzyJin2AIicEYJwpZgNoZ"
-FREESOUND_URL = "https://freesound.org/apiv2/search/text/"
+load_dotenv()
+
+# Freesound API Key and URL
+FREESOUND_API_KEY = os.getenv("FREESOUND_API_KEY")
+FREESOUND_URL = os.getenv("FREESOUND_URL")
 
 # Parameters
 NUM_SOUNDS = 3000  # Total number of sounds to download
