@@ -1,55 +1,75 @@
 import os
-import random
-import numpy as np
 import cv2
-from stegano import lsb
+import numpy as np
+import random
 import pandas as pd
+from skimage.util import random_noise
 
-# Paths
-CLEAN_IMAGES_DIR = "dataset/images/resized"
-STEGO_IMAGES_DIR = "dataset/images/stego"
-LABELS_FILE = "dataset/image_labels.csv"
+# Define Paths
+PROJECT_DIR = "C:/old/college/sem 6/Special Project/Project/StegoShield"
+IMAGE_FOLDER = os.path.join(PROJECT_DIR, "dataset/images/preprocessed")
+CLEAN_FOLDER = os.path.join(PROJECT_DIR, "dataset/images/clean")
+STEGO_FOLDER = os.path.join(PROJECT_DIR, "dataset/images/stego")
+LABELS_FILE = os.path.join(PROJECT_DIR, "dataset/images/labels.csv")
 
-# Ensure output directory exists
-os.makedirs(STEGO_IMAGES_DIR, exist_ok=True)
+# Ensure output directories exist
+os.makedirs(CLEAN_FOLDER, exist_ok=True)
+os.makedirs(STEGO_FOLDER, exist_ok=True)
 
-# Get all clean images
-image_files = os.listdir(CLEAN_IMAGES_DIR)
-random.shuffle(image_files)  # Shuffle for randomness
+# Get all images
+image_files = [f for f in os.listdir(IMAGE_FOLDER) if f.endswith(".png") or f.endswith(".jpg")]
+random.shuffle(image_files)
 
-# Select half of the dataset for stego embedding
-num_stego = len(image_files) // 2
-stego_images = image_files[:num_stego]
-clean_images = image_files[num_stego:]
+# Define Payload Functions
+def embed_lsb(image, payload):
+    """Embeds binary payload in the least significant bit of an image."""
+    bin_payload = ''.join(format(byte, '08b') for byte in payload)
+    index = 0
+    for i in range(image.shape[0]):
+        for j in range(image.shape[1]):
+            for k in range(3):  # RGB channels
+                if index < len(bin_payload):
+                    image[i, j, k] = (image[i, j, k] & 254) | int(bin_payload[index])
+                    index += 1
+    return image
 
-# Function to generate random binary noise
-def generate_random_binary_noise(size=1024):
-    return os.urandom(size).hex()  # Convert to hexadecimal string
+def embed_noise(image):
+    """Adds high-frequency noise to the image."""
+    return (random_noise(image, mode="gaussian", var=0.01) * 255).astype(np.uint8)
 
-# Function to embed binary noise into images
-def embed_binary_noise(image_path, output_path):
+# Generate Stego Images and Labels
+labels = []
+for i, file_name in enumerate(image_files):
+    image_path = os.path.join(IMAGE_FOLDER, file_name)
+    image = cv2.imread(image_path)
+    
     try:
-        binary_payload = generate_random_binary_noise()
-        stego_img = lsb.hide(image_path, binary_payload)  # Hide noise in LSB
-        stego_img.save(output_path)
+        if i < len(image_files) // 2:
+            # Save clean image
+            output_path = os.path.join(CLEAN_FOLDER, file_name)
+            cv2.imwrite(output_path, image)
+            labels.append(f"{file_name},clean")
+            print(f"✅ Clean image saved: {output_path}")
+        else:
+            # Apply a random steganographic technique
+            payload = np.random.randint(0, 255, 512, dtype=np.uint8)
+            method = random.choice(["lsb", "noise"])
+
+            if method == "lsb":
+                stego_image = embed_lsb(image, payload)
+            elif method == "noise":
+                stego_image = embed_noise(image)
+
+            output_path = os.path.join(STEGO_FOLDER, file_name)
+            cv2.imwrite(output_path, stego_image)
+            labels.append(f"{file_name},stego")
+            print(f"🔹 {method.upper()} payload embedded in: {output_path}")
+
     except Exception as e:
-        print(f"Error processing {image_path}: {e}")
+        print(f"❌ Error processing {file_name}: {e}")
 
-# Embed noise into selected images
-for img in stego_images:
-    input_path = os.path.join(CLEAN_IMAGES_DIR, img)
-    output_path = os.path.join(STEGO_IMAGES_DIR, img)
-    embed_binary_noise(input_path, output_path)
-
-# Create labels file (0 for clean, 1 for stego)
-data = []
-for img in clean_images:
-    data.append((img, 0))  # Clean image
-for img in stego_images:
-    data.append((img, 1))  # Stego image
-
-df = pd.DataFrame(data, columns=["filename", "label"])
+# Save Labels
+df = pd.DataFrame([l.split(",") for l in labels], columns=["filename", "label"])
 df.to_csv(LABELS_FILE, index=False)
 
-print(f"✅ Stego dataset created with {num_stego} images containing random binary noise.")
-print(f"✅ Labels saved in {LABELS_FILE}")
+print("✅ Image Steganography Embedding Complete!")
