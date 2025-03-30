@@ -1,4 +1,3 @@
-
 import os
 import torch
 import torch.nn as nn
@@ -14,7 +13,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Image Dataset
 class ImageDataset(Dataset):
-    def __init__(self, root_dir, transform=None):  # Fixed __init__
+    def __init__(self, root_dir, transform=None):
         self.root_dir = root_dir
         self.transform = transform
         self.data = []
@@ -25,10 +24,10 @@ class ImageDataset(Dataset):
             for file in os.listdir(path):
                 self.data.append((os.path.join(path, file), label))
 
-    def __len__(self):  # Fixed __len__
+    def __len__(self):
         return len(self.data)
 
-    def __getitem__(self, idx):  # Fixed __getitem__
+    def __getitem__(self, idx):
         img_path, label = self.data[idx]
         image = read_image(img_path).float() / 255.0
         if self.transform:
@@ -37,7 +36,7 @@ class ImageDataset(Dataset):
 
 # Image Steganography Detection Model
 class ImageStegoCNN(nn.Module):
-    def __init__(self):  # Fixed __init__
+    def __init__(self):
         super(ImageStegoCNN, self).__init__()
         self.model = models.resnet18(pretrained=True)
         self.model.fc = nn.Linear(self.model.fc.in_features, 2)
@@ -46,15 +45,16 @@ class ImageStegoCNN(nn.Module):
         return self.model(x)
 
 # Training Function
-def train(model, dataloader, epochs=10, lr=0.001, save_path="img_model.pth"):
+def train(model, train_loader, val_loader, epochs=10, lr=0.001, save_path="img_model.pth"):
     model.to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
 
     for epoch in range(epochs):
         total_loss = 0
+        correct, total = 0, 0
         model.train()
-        for inputs, labels in tqdm(dataloader, desc=f"Epoch {epoch+1}/{epochs}"):
+        for inputs, labels in tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs} - Training"):
             inputs, labels = inputs.to(device), labels.to(device)
             optimizer.zero_grad()
             outputs = model(inputs)
@@ -63,8 +63,21 @@ def train(model, dataloader, epochs=10, lr=0.001, save_path="img_model.pth"):
             optimizer.step()
             total_loss += loss.item()
 
-        avg_loss = total_loss / len(dataloader)
-        print(f"Epoch {epoch+1}/{epochs}, Loss: {avg_loss:.4f}")
+        avg_loss = total_loss / len(train_loader)
+        print(f"Epoch {epoch+1}/{epochs}, Train Loss: {avg_loss:.4f}")
+        
+        # Evaluate model on validation set
+        model.eval()
+        correct, total = 0, 0
+        with torch.no_grad():
+            for inputs, labels in val_loader:
+                inputs, labels = inputs.to(device), labels.to(device)
+                outputs = model(inputs)
+                _, predicted = torch.max(outputs, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+        accuracy = 100 * correct / total
+        print(f"Epoch {epoch+1}/{epochs}, Validation Accuracy: {accuracy:.2f}%")
 
     # Save model after training
     torch.save(model.state_dict(), save_path)
@@ -77,12 +90,15 @@ if __name__ == "__main__":
         transforms.Normalize((0.5,), (0.5,))
     ])
 
-    dataset_path = "dataset/images"  # Change this if needed
-    save_model_path = os.path.join(os.getcwd(), "img_model.pth")  # Saves in the current directory
+    train_path = "C:/old/college/sem 6/Special Project/Project/StegoShield/dataset/split_data/split_images/train"
+    val_path = "C:/old/college/sem 6/Special Project/Project/StegoShield/dataset/split_data/split_images/val"
+    save_model_path = os.path.join(os.getcwd(), "img_model.pth")
 
-    image_dataset = ImageDataset(dataset_path, transform=image_transform)
-    image_loader = DataLoader(image_dataset, batch_size=16, shuffle=True)
+    train_dataset = ImageDataset(train_path, transform=image_transform)
+    val_dataset = ImageDataset(val_path, transform=image_transform)
+
+    train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=16, shuffle=False)
 
     image_model = ImageStegoCNN()
-    train(image_model, image_loader, epochs=20, save_path=save_model_path)
-
+    train(image_model, train_loader, val_loader, epochs=20, save_path=save_model_path)
