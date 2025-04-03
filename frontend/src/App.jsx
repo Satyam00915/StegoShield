@@ -1,15 +1,8 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-
+import React from "react";
+import FileUpload from "./components/FileUpload";
 
 function App() {
-
-  return (
-    <>
-       <div className='text-5xl font-bold text-red-500'>Hello there</div>
-    </>
-  )
+    return <FileUpload />;
 }
 
-export default App
+export default App;

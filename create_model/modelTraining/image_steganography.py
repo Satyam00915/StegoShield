@@ -45,7 +45,7 @@ class ImageStegoCNN(nn.Module):
         return self.model(x)
 
 # Training Function
-def train(model, train_loader, val_loader, epochs=10, lr=0.001, save_path="img_model.pth"):
+def train(model, train_loader, val_loader, epochs=10, lr=0.001, save_path="backend/models/image_model.pth"):
     model.to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)

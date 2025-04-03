@@ -16,7 +16,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 dataset_path = "C:/old/college/sem 6/Special Project/Project/StegoShield/dataset/split_data/split_audio"
 train_path = os.path.join(dataset_path, "train")
 val_path = os.path.join(dataset_path, "val")
-save_model_path = os.path.join(os.getcwd(), "audio_model.pth")
+save_model_path = os.path.join(os.getcwd(), "backend/models/audiol.pth")
 
 # Function to convert waveform to spectrogram
 def waveform_to_spectrogram(waveform, sr=22050, n_mels=128, target_shape=(128, 300)):

@@ -66,7 +66,7 @@ class VideoStegoModel(nn.Module):
         return self.fc(lstm_out[:, -1, :])
 
 # Training Function with Balanced Loss
-def train(model, train_loader, val_loader, epochs=15, lr=0.0005, save_path="video_model.pth"):
+def train(model, train_loader, val_loader, epochs=15, lr=0.0005, save_path="backend/models/video.pth"):
     model.to(device)
     criterion = nn.CrossEntropyLoss(weight=torch.tensor([1.0, 1.2], device=device))
     optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
