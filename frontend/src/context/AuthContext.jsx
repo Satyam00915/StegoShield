@@ -5,22 +5,10 @@ import { auth } from "../firebase";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            setUser(user);
-            setIsLoggedIn(!!user); // Set isLoggedIn based on user state
-            setLoading(false);
-        });
-
-        return () => unsubscribe();
-    }, []);
-
     return (
-        <AuthContext.Provider value={{ user, loading , isLoggedIn, setIsLoggedIn}}>
+        <AuthContext.Provider value={{  isLoggedIn, setIsLoggedIn}}>
             {children}
         </AuthContext.Provider>
     );
