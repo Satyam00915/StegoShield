@@ -1,0 +1,17 @@
+*.png
+*.jpg
+*.jpeg
+*.mp3
+*.wav
+*.mp4
+*.avi
+env/
+.env
+
+!frontend/src/assets/logo.png
+
+!frontend/public/only_logo.png
+!frontend/public/website_logo.png
+!frontend/public/circle_logo.png
+
+backend/firebase_config.json

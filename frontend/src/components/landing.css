@@ -1,0 +1,50 @@
+/* src/custom.css */
+@media (min-width: 1536px) {
+    .custom-container {
+      max-width: 90%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  
+    .custom-padding {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+
+@media (max-width:1920px) and (min-width: 1024px) {
+    .custom-container {
+      max-width: 100%;
+      margin-left: 0px;
+      margin-right: 0px;
+    }
+    .custom-padding {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+  }
+  
+
+
+/* Remove default margin/padding and make all sections full width */
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+/* Make all direct child sections stretch full width */
+section, header, footer, main, div.container {
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Optional: if using max-w-* utility in Tailwind, reset them */
+.max-w-7xl, .max-w-6xl, .max-w-5xl, .max-w-4xl {
+  max-width: 100% !important;
+}
