@@ -188,7 +188,7 @@ const Profile = () => {
           <div className="flex justify-center">
             <button
               onClick={handleSave}
-              className="px-6 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-500 transition"
+              className="px-6 py-2 text-white bg-gray-800 hover:bg-gray-700 rounded-full transition"
             >
               Save Changes
             </button>
