@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { auth, provider, signInWithPopup } from "../firebase";
+import { auth, provider, signInWithPopup , signInWithRedirect } from "../firebase";
 import { toast } from "react-hot-toast";
 
 const Login = () => {
@@ -45,18 +45,18 @@ const Login = () => {
         try {
             const result = await signInWithPopup(auth, provider);
             const idToken = await result.user.getIdToken();
-    
+
             const res = await fetch("http://localhost:5000/google-login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ idToken }),
             });
-    
+
             const data = await res.json();
-    
+
             if (res.ok) {
-                localStorage.setItem("user", JSON.stringify(data.user));
-                toast.success(`Welcome, ${data.user.name}`);
+                const name = localStorage.setItem("user", JSON.stringify(data.user));
+                toast.success(`Welcome, ${name}`);
                 navigate("/dashboard");
             } else {
                 toast.error(data.message || "Login failed");
@@ -66,7 +66,7 @@ const Login = () => {
             toast.error("Google login failed.");
         }
     };
-    
+
     return (
         <section className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center px-4 relative">
             <a

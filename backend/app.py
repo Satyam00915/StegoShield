@@ -40,6 +40,66 @@ def test_db():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+@app.route('/api/user/<int:user_id>', methods=['PUT'])
+def update_user(user_id):
+    data = request.json
+    name = data.get('name')
+    email = data.get('email')
+    password = data.get('password')  # Optional
+    avatar = data.get('avatar')
+    theme = data.get('theme')
+
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        query = """
+            UPDATE users 
+            SET 
+                name = %s,
+                email = %s,
+                password = COALESCE(%s, password),
+                avatar = %s,
+                theme = %s
+            WHERE id = %s
+            RETURNING id, name, email, avatar, theme, is_admin, created_at, auth_provider;
+        """
+
+        cursor.execute(query, (
+            name,
+            email,
+            password if password else None,
+            avatar,
+            theme,
+            user_id
+        ))
+
+        updated_user = cursor.fetchone()
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        if not updated_user:
+            return jsonify({"message": "User not found"}), 404
+
+        # Convert DB tuple to dict
+        user_data = {
+            "id": updated_user[0],
+            "name": updated_user[1],
+            "email": updated_user[2],
+            "avatar": updated_user[3],
+            "theme": updated_user[4],
+            "is_admin": updated_user[5],
+            "created_at": updated_user[6],
+            "auth_provider": updated_user[7],
+        }
+
+        return jsonify(user_data)
+
+    except Exception as e:
+        print("Error updating user:", e)
+        return jsonify({"error": str(e)}), 500
+
 # --------------------- SERVE REACT FRONTEND ---------------------
 
 @app.route("/")

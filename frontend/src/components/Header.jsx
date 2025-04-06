@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import logo from "../assets/logo.png";
 import "./landing.css";
 import { useAuth } from "../context/AuthContext";
+import { Link, useNavigate } from "react-router-dom";
+
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -112,15 +114,35 @@ const Header = () => {
             </ul>
 
             {/* Auth Links */}
-            {!isLoggedIn ? (
-              <a
-                href="/signup"
-                className="inline-flex items-center justify-center px-4 py-2 text-white bg-gray-800 hover:bg-gray-700 rounded-full text-sm mt-4 md:mt-0"
-              >
-                Sign Up
-              </a>
-            ) : (
+            {isLoggedIn ? (
               <div className="flex flex-col items-center gap-4 mt-4 md:flex-row md:gap-4 md:mt-0">
+                {/* Profile Section (Clickable Link) */}
+                <Link
+                  to="/profile"
+                  className="flex items-center gap-2 bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+                >
+                  {JSON.parse(localStorage.getItem("user"))?.photoURL ? (
+                    <img
+                      src={JSON.parse(localStorage.getItem("user")).photoURL}
+                      alt="Profile"
+                      className="w-8 h-8 rounded-full object-cover border border-gray-400"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-gray-500 text-white flex items-center justify-center text-sm font-semibold">
+                      {JSON.parse(localStorage.getItem("user"))?.name?.charAt(0).toUpperCase() || "U"}
+                    </div>
+                  )}
+
+                  <div className="hidden md:block text-sm text-gray-800 dark:text-white">
+                    <p className="font-semibold">
+                      {JSON.parse(localStorage.getItem("user"))?.name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {JSON.parse(localStorage.getItem("user"))?.email}
+                    </p>
+                  </div>
+                </Link>
+                {/* Logout Button */}
                 <button
                   onClick={handleLogout}
                   className="inline-flex items-center justify-center px-4 py-2 text-white bg-gray-800 hover:bg-gray-700 rounded-full text-sm"
@@ -128,6 +150,13 @@ const Header = () => {
                   Logout
                 </button>
               </div>
+            ) : (
+              <a
+                href="/signup"
+                className="inline-flex items-center justify-center px-4 py-2 text-white bg-gray-800 hover:bg-gray-700 rounded-full text-sm mt-4 md:mt-0"
+              >
+                Sign Up
+              </a>
             )}
           </div>
         </div>
