@@ -51,6 +51,7 @@ pooch
 proglog
 progressbar2
 psutil
+psycopg2-binary
 pyasn1
 pycparser
 pydub
