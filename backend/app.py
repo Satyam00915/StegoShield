@@ -21,7 +21,7 @@ CORS(app, supports_credentials=True)
 
 app.secret_key = "your-secret-key"  # Replace with a strong secret key
 
-cred = credentials.Certificate("backend/firebase_config.json")
+cred = credentials.Certificate("firebase_config.json")
 firebase_admin.initialize_app(cred)
 
 # Load model once at startup
