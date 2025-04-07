@@ -16,6 +16,7 @@ docutils
 ffmpeg-python
 filelock
 Flask
+flask-cors
 fonttools
 fsspec
 future
