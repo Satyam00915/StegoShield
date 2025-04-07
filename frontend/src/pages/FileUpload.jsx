@@ -142,7 +142,7 @@ const FileUploader = () => {
 
         <button
           onClick={handleAnalyze}
-          className={`w-full flex items-center justify-center gap-2 mt-2 px-6 py-2 ${isAnalyzing ? "bg-gray-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-500"
+          className={`w-full flex items-center justify-center gap-2 mt-2 px-6 py-2 ${isAnalyzing ? "bg-gray-400 cursor-not-allowed" : " text-white bg-gray-800 hover:bg-gray-700"
             } text-white rounded-full transition`}
           disabled={isAnalyzing}
         >

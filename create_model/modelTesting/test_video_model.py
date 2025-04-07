@@ -6,6 +6,7 @@ import cv2
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
 
+
 # Device Configuration
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -39,9 +40,11 @@ class VideoDataset(Dataset):
 
         cap.release()
 
-        if len(frames) < 10:
-            frames.extend([frames[-1]] * (10 - len(frames)))  # Padding with last frame if needed
-        
+        if len(frames) < 10 and len(frames) > 0:
+            frames.extend([frames[-1]] * (10 - len(frames)))
+        elif len(frames) == 0:
+            frames = [torch.zeros(3, 224, 224)] * 10  # fallback for corrupt videos
+
         frames = torch.stack(frames)
         return frames, torch.tensor(label, dtype=torch.long)
 
@@ -49,7 +52,8 @@ class VideoDataset(Dataset):
 class VideoStegoModel(nn.Module):
     def __init__(self):
         super(VideoStegoModel, self).__init__()
-        self.cnn = models.resnet18(pretrained=False)
+        # Use weights=None instead of pretrained=False (fixes deprecation warning)
+        self.cnn = models.resnet18(weights=None)
         self.cnn.fc = nn.Linear(self.cnn.fc.in_features, 128)
         self.lstm = nn.LSTM(128, 64, batch_first=True)
         self.fc = nn.Linear(64, 2)
@@ -62,14 +66,22 @@ class VideoStegoModel(nn.Module):
         return self.fc(lstm_out[:, -1, :])
 
 # Load Test Dataset
-test_data_path = r"C:\old\college\sem 6\Special Project\Project\StegoShield\dataset\split_data\split_videos\test"
+test_data_path = r"dataset_prep/dataset/split_data/split_videos/test"
 test_dataset = VideoDataset(test_data_path)
 test_loader = DataLoader(test_dataset, batch_size=4, shuffle=False)
 
+torch.save(model.state_dict(), 'backend/models/best_video_stego_model.pth')
 # Load Trained Model
-model_path = "video_model.pth"  # Make sure this is the correct path to the trained model
+model_path = "backend/models/best_video_stego_model.pth"
 model = VideoStegoModel().to(device)
-model.load_state_dict(torch.load(model_path, map_location=device))
+
+# Try loading with weights_only=False due to new PyTorch 2.6 behavior
+try:
+    model.load_state_dict(torch.load(model_path, map_location=device, weights_only=False))
+except TypeError:
+    # Fallback if using older PyTorch
+    model.load_state_dict(torch.load(model_path, map_location=device))
+
 model.eval()
 
 # Evaluate Model
@@ -85,3 +97,6 @@ with torch.no_grad():
 
 accuracy = 100 * correct / total
 print(f"✅ Test Accuracy: {accuracy:.2f}%")
+print(f"✅ Total Videos: {total}")
+print(f"✅ Correct Predictions: {correct}")
+print(f"✅ Incorrect Predictions: {total - correct}")

@@ -4,11 +4,10 @@ import "./landing.css";
 import { useAuth } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 
-
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  // const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const { isLoggedIn, setIsLoggedIn } = useAuth()
+  const { isLoggedIn, setIsLoggedIn } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -20,18 +19,22 @@ const Header = () => {
 
   useEffect(() => {
     const user = localStorage.getItem("user");
-    if (user) {
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
-    }
-  }, [])
+    setIsLoggedIn(!!user);
+  }, []);
 
   const handleLogout = () => {
     setIsLoggedIn(false);
     localStorage.removeItem("user");
-    history.push("/login");
-    alert("Logged out successfully!");
+    navigate("/login");
+    toast.success("Logged out successfully");
+  };
+
+  const getUser = () => {
+    try {
+      return JSON.parse(localStorage.getItem("user"));
+    } catch (err) {
+      return null;
+    }
   };
 
   const Brand = () => (
@@ -62,20 +65,19 @@ const Header = () => {
     </div>
   );
 
-  // Dynamic Navigation
   const navigation = isLoggedIn
     ? [
-      { title: "Dashboard", path: "/dashboard" },
-      { title: "Predict", path: "/upload" },
-      { title: "Blog", path: "/blog" },
-      { title: "How It Works", path: "/how-it-works" },
-    ]
+        { title: "Dashboard", path: "/dashboard" },
+        { title: "Predict", path: "/upload" },
+        { title: "Blog", path: "/blog" },
+        { title: "How It Works", path: "/how-it-works" },
+      ]
     : [
-      { title: "Home", path: "/" },
-      { title: "Features", path: "#features" },
-      { title: "Customers", path: "#customers" },
-      { title: "Contact", path: "#contact" },
-    ];
+        { title: "Home", path: "/" },
+        { title: "Features", path: "#features" },
+        { title: "Customers", path: "#customers" },
+        { title: "Contact", path: "#contact" },
+      ];
 
   return (
     <header className="relative z-10">
@@ -85,20 +87,22 @@ const Header = () => {
       </div>
 
       <nav
-        className={`pb-5 md:text-sm ${isOpen
-          ? "absolute top-0 inset-x-0 bg-white shadow-lg rounded-xl border mx-2 mt-2 md:static md:shadow-none md:border-none md:mx-0"
-          : ""
-          }`}
+        className={`pb-5 md:text-sm ${
+          isOpen
+            ? "absolute top-0 inset-x-0 bg-white shadow-lg rounded-xl border mx-2 mt-2 md:static md:shadow-none md:border-none md:mx-0"
+            : ""
+        }`}
       >
         <div className="max-w-screen-1xl mx-auto px-4 sm:px-6 lg:px-3 xl:px-4 md:flex md:items-center md:justify-between md:px-6 md:py-4">
           <Brand />
 
           {/* Nav Links */}
           <div
-            className={`md:flex items-center space-y-6 md:space-y-0 md:space-x-6 ${isOpen
-              ? "flex flex-col items-center justify-center mt-6"
-              : "hidden md:block"
-              }`}
+            className={`md:flex items-center space-y-6 md:space-y-0 md:space-x-6 ${
+              isOpen
+                ? "flex flex-col items-center justify-center mt-6"
+                : "hidden md:block"
+            }`}
           >
             <ul className="flex flex-col items-center space-y-6 md:flex-row md:space-y-0 md:space-x-6">
               {navigation.map((item, idx) => (
@@ -116,33 +120,31 @@ const Header = () => {
             {/* Auth Links */}
             {isLoggedIn ? (
               <div className="flex flex-col items-center gap-4 mt-4 md:flex-row md:gap-4 md:mt-0">
-                {/* Profile Section (Clickable Link) */}
+                {/* Profile Link */}
                 <Link
                   to="/profile"
                   className="flex items-center gap-2 bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition"
                 >
-                  {JSON.parse(localStorage.getItem("user"))?.photoURL ? (
+                  {getUser()?.avatar ? (
                     <img
-                      src={JSON.parse(localStorage.getItem("user")).photoURL}
+                      src={getUser().avatar}
                       alt="Profile"
                       className="w-8 h-8 rounded-full object-cover border border-gray-400"
                     />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-gray-500 text-white flex items-center justify-center text-sm font-semibold">
-                      {JSON.parse(localStorage.getItem("user"))?.name?.charAt(0).toUpperCase() || "U"}
+                      {getUser()?.name?.charAt(0).toUpperCase() || "U"}
                     </div>
                   )}
 
-                  <div className="hidden md:block text-sm text-gray-800 dark:text-white">
+                  <div className="text-sm text-gray-800 dark:text-white">
                     <p className="font-semibold">
-                      {JSON.parse(localStorage.getItem("user"))?.name}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {JSON.parse(localStorage.getItem("user"))?.email}
+                      {getUser()?.name || "User"}
                     </p>
                   </div>
                 </Link>
-                {/* Logout Button */}
+
+                {/* Logout */}
                 <button
                   onClick={handleLogout}
                   className="inline-flex items-center justify-center px-4 py-2 text-white bg-gray-800 hover:bg-gray-700 rounded-full text-sm"

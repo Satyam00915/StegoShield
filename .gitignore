@@ -7,7 +7,7 @@
 *.avi
 env/
 .env
-
+backend/models/best_video_stego_model.pth
 !frontend/src/assets/logo.png
 
 !frontend/public/only_logo.png

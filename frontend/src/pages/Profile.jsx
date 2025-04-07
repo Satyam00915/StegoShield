@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { Pencil, Eye, EyeOff } from "lucide-react";
 import Header from "../components/Header";
+import { useAuth } from "../context/AuthContext";
 
 const getPasswordStrength = (password) => {
   if (!password) return "Weak";
@@ -13,25 +15,40 @@ const getPasswordStrength = (password) => {
 
 const Profile = () => {
   const [profile, setProfile] = useState({
+    id: "",
     name: "",
     email: "",
     password: "",
+    oldPassword: "",
     avatar: "",
     theme: "light",
   });
   const [lastUpdated, setLastUpdated] = useState("");
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const fileInputRef = useRef(null);
   const navigate = useNavigate();
+  const isLoggedIn = useAuth();
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user")) || {
+      id: "",
       name: "CyberNova",
       email: "cybernova@stegoshield.ai",
       avatar: "",
       theme: "light",
     };
-    setProfile({ ...user, password: "" });
+    setProfile({ ...user, password: "", oldPassword: "" });
     setLastUpdated(localStorage.getItem("lastUpdated") || "");
   }, []);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) {
+      toast.error("You need to be logged in to access this page.");
+      return navigate("/login");
+    }
+  }, [isLoggedIn]);
 
   const handleChange = (e) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
@@ -54,44 +71,44 @@ const Profile = () => {
       toast.error("Name and Email are required!");
       return;
     }
-  
+
     const updatedProfile = {
       name: profile.name,
       email: profile.email,
+      oldPassword: profile.oldPassword || null,
       password: profile.password || null,
       avatar: profile.avatar,
       theme: profile.theme,
     };
-  
+
     try {
       const res = await fetch(`http://localhost:5000/api/user/${profile.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedProfile),
       });
-  
+
       if (!res.ok) {
-        toast.error("Failed to update profile!");
+        const errorData = await res.json();
+        toast.error(errorData.message || "Failed to update profile!");
         return;
       }
-  
+
       const data = await res.json();
       localStorage.setItem("user", JSON.stringify(data));
       const timestamp = new Date().toLocaleString();
       localStorage.setItem("lastUpdated", timestamp);
       setLastUpdated(timestamp);
       toast.success("Profile updated successfully!");
-  
+
       setTimeout(() => {
-        window.location.href = "/dashboard"; // redirect
+        window.location.href = "/dashboard";
       }, 1000);
-  
     } catch (err) {
       console.error(err);
       toast.error("Something went wrong!");
     }
   };
-  
 
   const strength = getPasswordStrength(profile.password);
 
@@ -100,7 +117,6 @@ const Profile = () => {
       <Header />
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-10 px-4">
         <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow p-6 space-y-6">
-
           <motion.h2
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -109,27 +125,29 @@ const Profile = () => {
             Profile Settings
           </motion.h2>
 
-          {/* Centered Avatar */}
-          {profile.avatar && (
-            <div className="flex justify-center">
-              <img
-                src={profile.avatar}
-                alt="avatar"
-                className="w-24 h-24 rounded-full border-4 border-indigo-500 object-cover"
-              />
-            </div>
-          )}
-
-          {/* Centered Upload Input */}
-          <div className="flex flex-col items-center space-y-1">
-            <label className="text-sm text-gray-600 dark:text-gray-300 text-center">
-              Upload Profile Picture
-            </label>
+          {/* Avatar with edit icon */}
+          <div className="relative w-24 h-24 mx-auto">
+            <img
+              src={
+                profile.avatar ||
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name || "User")}&background=4f46e5&color=fff`
+              }
+              alt="avatar"
+              className="w-24 h-24 rounded-full border-4 border-indigo-500 object-cover"
+            />
+            <button
+              className="absolute bottom-0 right-0 p-1 bg-white rounded-full shadow hover:scale-110 transition"
+              onClick={() => fileInputRef.current.click()}
+              title="Edit Photo"
+            >
+              <Pencil size={18} className="text-indigo-600" />
+            </button>
             <input
               type="file"
               accept="image/*"
               onChange={handleImageUpload}
-              className="text-sm text-gray-700 dark:text-gray-200"
+              ref={fileInputRef}
+              style={{ display: "none" }}
             />
           </div>
 
@@ -158,16 +176,43 @@ const Profile = () => {
               />
             </div>
 
-            {/* Password */}
-            <div>
+            {/* Old Password */}
+            <div className="relative">
+              <label className="block text-sm text-gray-600 dark:text-gray-300">Current Password</label>
+              <input
+                type={showOldPassword ? "text" : "password"}
+                name="oldPassword"
+                value={profile.oldPassword}
+                onChange={handleChange}
+                className="w-full p-2 pr-10 mt-1 rounded-md border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+              />
+              <button
+                type="button"
+                onClick={() => setShowOldPassword(!showOldPassword)}
+                className="absolute top-9 right-3 text-gray-500 hover:text-gray-700 dark:hover:text-white"
+              >
+                {showOldPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+
+            {/* New Password */}
+            <div className="relative">
               <label className="block text-sm text-gray-600 dark:text-gray-300">New Password</label>
               <input
-                type="password"
+                type={showNewPassword ? "text" : "password"}
                 name="password"
                 value={profile.password}
                 onChange={handleChange}
-                className="w-full p-2 mt-1 rounded-md border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+                className="w-full p-2 pr-10 mt-1 rounded-md border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
               />
+              <button
+                type="button"
+                onClick={() => setShowNewPassword(!showNewPassword)}
+                className="absolute top-9 right-3 text-gray-500 hover:text-gray-700 dark:hover:text-white"
+              >
+                {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+
               {profile.password && (
                 <p
                   className={`text-sm mt-1 ${

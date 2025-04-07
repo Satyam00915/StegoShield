@@ -4,7 +4,9 @@ from flask import Flask, request, jsonify, send_from_directory, session
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from waitress import serve
-import torch
+from cloudinary.uploader import upload as cloudinary_upload
+import base64
+import re
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import auth as firebase_auth
@@ -45,13 +47,46 @@ def update_user(user_id):
     data = request.json
     name = data.get('name')
     email = data.get('email')
-    password = data.get('password')  # Optional
-    avatar = data.get('avatar')
+    new_password = data.get('password')  # New password (optional)
+    old_password = data.get('oldPassword')  # Optional
+    avatar = data.get('avatar')      # base64 string
     theme = data.get('theme')
+
+    avatar_url = None
 
     try:
         conn = get_connection()
         cursor = conn.cursor()
+
+        # Fetch current password hash from DB
+        cursor.execute("SELECT password FROM users WHERE id = %s", (user_id,))
+        result = cursor.fetchone()
+
+        if not result:
+            return jsonify({"message": "User not found"}), 404
+
+        current_hashed_password = result[0]
+
+        # If user is trying to update password, verify old password
+        hashed_new_password = None
+        if new_password:
+            if not old_password:
+                return jsonify({"message": "Old password is required to update password"}), 400
+
+            if not check_password_hash(current_hashed_password, old_password):
+                return jsonify({"message": "Incorrect current password"}), 403
+
+            hashed_new_password = generate_password_hash(new_password)
+
+        if avatar and avatar.startswith("data:image"):
+            # Extract base64 from Data URL
+            base64_data = re.sub('^data:image/.+;base64,', '', avatar)
+            decoded_img = base64.b64decode(base64_data)
+
+            # Upload to Cloudinary
+            result = cloudinary_upload(decoded_img, folder="avatars", public_id=f"user_{user_id}", overwrite=True)
+            avatar_url = result.get("secure_url")
+
 
         query = """
             UPDATE users 
@@ -59,7 +94,7 @@ def update_user(user_id):
                 name = %s,
                 email = %s,
                 password = COALESCE(%s, password),
-                avatar = %s,
+                avatar = COALESCE(%s, avatar),
                 theme = %s
             WHERE id = %s
             RETURNING id, name, email, avatar, theme, is_admin, created_at, auth_provider;
@@ -68,8 +103,8 @@ def update_user(user_id):
         cursor.execute(query, (
             name,
             email,
-            password if password else None,
-            avatar,
+            hashed_new_password,
+            avatar_url,
             theme,
             user_id
         ))
@@ -82,7 +117,6 @@ def update_user(user_id):
         if not updated_user:
             return jsonify({"message": "User not found"}), 404
 
-        # Convert DB tuple to dict
         user_data = {
             "id": updated_user[0],
             "name": updated_user[1],
@@ -153,21 +187,34 @@ def google_signup():
         cursor = conn.cursor()
 
         # Check if user already exists
-        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        cursor.execute("SELECT id, name FROM users WHERE email = %s", (email,))
         existing_user = cursor.fetchone()
 
-        if not existing_user:
+        if existing_user:
+            user_id, name = existing_user
+        else:
+            # New user signup (no password needed for Google auth)
             cursor.execute(
-                "INSERT INTO users (name, email, password, auth_provider) VALUES (%s, %s, %s, %s)",
-                (name, email, None, 'google')
+                "INSERT INTO users (name, email, auth_provider) VALUES (%s, %s, %s) RETURNING id",
+                (name, email, 'google')
             )
+            user_id = cursor.fetchone()[0]
             conn.commit()
 
         cursor.close()
         conn.close()
-        return jsonify({"message": "Google signup/login successful", "email": email})
+        return jsonify({
+            "message": "Google signup/login successful",
+            "user": {
+                "id": user_id,
+                "email": email,
+                "name": name
+            }
+        }), 200
+
     except Exception as e:
         conn.rollback()
+        print(f"Google signup error: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route("/login", methods=["POST"])
@@ -179,27 +226,37 @@ def login():
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT id, password FROM users WHERE email = %s", (email,))
+
+        # Fetch name AND avatar along with password
+        cursor.execute("SELECT id, name, password, avatar FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
+
         cursor.close()
         conn.close()
 
         if user is None:
             return jsonify({"message": "User not found"}), 404
 
-        user_id, hashed_password = user
+        user_id, name, hashed_password, avatar = user
 
         if not hashed_password or not isinstance(hashed_password, str):
-            return jsonify({"message": "Invalid Credentials"}), 500  # data corruption check
+            return jsonify({"message": "Invalid Credentials"}), 500  # sanity check
 
         if not check_password_hash(hashed_password, password):
             return jsonify({"message": "Incorrect password"}), 401
 
         session['user_id'] = user_id
-        return jsonify({"user": {"id": user_id, "email": email}}), 200
+        return jsonify({
+            "user": {
+                "id": user_id,
+                "email": email,
+                "name": name,
+                "avatar": avatar  # now returning avatar too
+            }
+        }), 200
 
     except Exception as e:
-        print(f"Login error: {e}")  # For backend logs
+        print(f"Login error: {e}")
         return jsonify({"message": "Server error", "error": str(e)}), 500
 
 @app.route("/google-login", methods=["POST"])
@@ -212,29 +269,42 @@ def google_login():
         decoded_token = firebase_auth.verify_id_token(id_token)
         email = decoded_token.get("email")
         uid = decoded_token.get("uid")
+        name = decoded_token.get("name")
+        avatar = decoded_token.get("picture")  # 🎯 This is the profile picture URL
 
         # Connect to your DB and check if user exists
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
+        cursor.execute("SELECT id, name, avatar FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
 
         if not user:
-            # If user not in DB, insert them
+            # New user – insert into DB with name and avatar
             cursor.execute(
-                "INSERT INTO users (email, google_uid) VALUES (%s, %s) RETURNING id",
-                (email, uid)
+                """
+                INSERT INTO users (name, email, google_uid, auth_provider, avatar)
+                VALUES (%s, %s, %s, %s, %s)
+                RETURNING id
+                """,
+                (name, email, uid, 'google', avatar)
             )
             user_id = cursor.fetchone()[0]
             conn.commit()
         else:
-            user_id = user[0]
+            user_id, name, avatar = user  # Also pull avatar from DB
 
         cursor.close()
         conn.close()
 
         session['user_id'] = user_id
-        return jsonify({"user": {"id": user_id, "email": email}}), 200
+        return jsonify({
+            "user": {
+                "id": user_id,
+                "email": email,
+                "name": name,
+                "avatar": avatar  # Send back the profile pic
+            }
+        }), 200
 
     except Exception as e:
         print(f"Google login error: {e}")
