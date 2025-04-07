@@ -6,6 +6,7 @@ botocore
 certifi
 cffi
 charset-normalizer
+cloudinary
 colorama
 contourpy
 crayons
