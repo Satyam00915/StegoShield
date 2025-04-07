@@ -16,6 +16,7 @@ decorator
 docutils
 ffmpeg-python
 filelock
+firebase-admin
 Flask
 flask-cors
 fonttools
