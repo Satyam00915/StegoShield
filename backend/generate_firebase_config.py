@@ -17,5 +17,5 @@ def generate_config_file():
         "client_x509_cert_url": os.getenv("FIREBASE_CLIENT_X509_CERT_URL")
     }
 
-    with open("backend/firebase_config.json", "w") as f:
+    with open("firebase_config.json", "w") as f:
         json.dump(firebase_data, f)
