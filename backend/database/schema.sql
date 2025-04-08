@@ -53,13 +53,73 @@ CREATE TABLE IF NOT EXISTS feedback (
     submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-ALTER TABLE users ALTER COLUMN password DROP NOT NULL;
+-- Drop NOT NULL only if the column exists and is NOT NULL
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name='users' AND column_name='password' AND is_nullable = 'NO'
+    ) THEN
+        ALTER TABLE users ALTER COLUMN password DROP NOT NULL;
+    END IF;
+END$$;
 
-ALTER TABLE users ADD COLUMN auth_provider TEXT DEFAULT 'email';
+-- Add auth_provider column if not exists
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name='users' AND column_name='auth_provider'
+    ) THEN
+        ALTER TABLE users ADD COLUMN auth_provider TEXT DEFAULT 'email';
+    END IF;
+END$$;
 
-ALTER TABLE users ADD CONSTRAINT password_null_check
-CHECK (
-    (auth_provider = 'google' AND password IS NULL)
-    OR
-    (auth_provider = 'email' AND password IS NOT NULL)
-);
+-- Add password_null_check constraint if not exists
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.table_constraints 
+        WHERE constraint_name='password_null_check' AND table_name='users'
+    ) THEN
+        ALTER TABLE users ADD CONSTRAINT password_null_check
+        CHECK (
+            (auth_provider = 'google' AND password IS NULL)
+            OR
+            (auth_provider = 'email' AND password IS NOT NULL)
+        );
+    END IF;
+END$$;
+
+-- Add file_url column to results if not exists
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name='results' AND column_name='file_url'
+    ) THEN
+        ALTER TABLE results ADD COLUMN file_url TEXT;
+    END IF;
+END$$;
+
+-- Add file_url column to uploads if not exists
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name='uploads' AND column_name='file_url'
+    ) THEN
+        ALTER TABLE uploads ADD COLUMN file_url TEXT;
+    END IF;
+END$$;
+
+-- Add user_id to uploads if not exists
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name='uploads' AND column_name='user_id'
+    ) THEN
+        ALTER TABLE uploads ADD COLUMN user_id INTEGER REFERENCES users(id);
+    END IF;
+END$$;

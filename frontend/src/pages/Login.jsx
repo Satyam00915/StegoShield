@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { auth, provider, signInWithPopup  } from "../firebase";
+import { auth, provider, signInWithPopup } from "../firebase";
 import { toast } from "react-hot-toast";
 
 const Login = () => {
@@ -22,7 +22,7 @@ const Login = () => {
             const res = await fetch("http://localhost:5000/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
+                credentials: "include",
             });
 
             const data = await res.json();
@@ -50,6 +50,7 @@ const Login = () => {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ idToken }),
+                credentials: "include",
             });
 
             const data = await res.json();

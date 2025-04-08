@@ -91,37 +91,58 @@ def load_model():
 
 # Preprocess image for model prediction
 def preprocess_image(image_file):
+    image_file.seek(0)  # 👈 reset file pointer to beginning
+    image = Image.open(image_file).convert("RGB")
     transform = transforms.Compose([
         transforms.Resize((224, 224)),
         transforms.ToTensor()
     ])
-    image = Image.open(io.BytesIO(image_file.read())).convert("RGB")
     return transform(image).unsqueeze(0)  # Add batch dimension
 
 # Predict function to detect malicious payloads
 def predict(file, models):
-    filename = file.filename.lower()
-    
-    if filename.endswith(('.png', '.jpg', '.jpeg')):
-        model = models["image"]
-        input_data = preprocess_image(file)
-    
-    elif filename.endswith(('.wav', '.mp3')):
-        model = models["audio"]
-        # TODO: Implement audio preprocessing
-        input_data = torch.randn(1, 1, 128, 300)
+    print("📥 Inside predict()")
+    print("Filename:", file.filename)
 
-    elif filename.endswith(('.mp4', '.avi', '.mkv')):
-        model = models["video"]
-        # TODO: Implement video preprocessing
-        input_data = torch.randn(1, 10, 3, 224, 224)
-    else:
-        return "Unsupported file type", 0.0
+    try:
+        filename = file.filename.lower()
+        
+        if filename.endswith(('.png', '.jpg', '.jpeg')):
+            print("🖼 Detected as image")
+            model = models["image"]
+            input_data = preprocess_image(file)
 
-    with torch.no_grad():
-        output = model(input_data)
-        prediction = torch.argmax(output, dim=1).item()
-        confidence = torch.softmax(output, dim=1).max().item()
+        elif filename.endswith(('.wav', '.mp3')):
+            print("🎵 Detected as audio")
+            model = models["audio"]
+            # TODO: Implement audio preprocessing
+            input_data = torch.randn(1, 1, 128, 300)
 
-    result = "Malicious" if prediction == 1 else "Safe"
-    return result, round(confidence, 2)
+        elif filename.endswith(('.mp4', '.avi', '.mkv')):
+            print("🎥 Detected as video")
+            model = models["video"]
+            # TODO: Implement video preprocessing
+            input_data = torch.randn(1, 10, 3, 224, 224)
+
+        else:
+            print("❌ Unsupported file type")
+            return "Unsupported file type", 0.0
+
+        print("✅ Running model prediction...")
+        with torch.no_grad():
+            print("🧪 input_data shape:", input_data.shape)
+            print("🧪 input_data type:", type(input_data))
+
+            output = model(input_data)
+            print("📊 Model output:", output)
+
+            prediction = torch.argmax(output, dim=1).item()
+            confidence = torch.softmax(output, dim=1).max().item()
+
+        result = "Malicious" if prediction == 1 else "Safe"
+        print("✅ Result:", result, "| Confidence:", confidence)
+        return result, round(confidence, 2)
+
+    except Exception as e:
+        print("🔥 Exception in predict():", str(e))
+        raise e

@@ -5,6 +5,7 @@ from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from waitress import serve
 from cloudinary.uploader import upload as cloudinary_upload
+from cloudinary.utils import cloudinary_url
 import base64
 import re
 import firebase_admin
@@ -12,8 +13,34 @@ from firebase_admin import credentials
 from firebase_admin import auth as firebase_auth
 from model import load_model, predict
 from database.db_config import get_connection
+import cloudinary_config
+from datetime import datetime
+import os
+from werkzeug.utils import secure_filename
 
 generate_config_file()
+
+from functools import wraps
+
+def admin_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        user_id = session.get("user_id")
+        if not user_id:
+            return jsonify({"error": "Unauthorized"}), 401
+
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT is_admin FROM users WHERE id = %s", (user_id,))
+        result = cur.fetchone()
+        cur.close()
+        conn.close()
+
+        if not result or not result[0]:
+            return jsonify({"error": "Admin access required"}), 403
+
+        return f(*args, **kwargs)
+    return decorated
 
 
 app = Flask(__name__, static_folder="../frontend/dist", static_url_path="/")
@@ -297,6 +324,7 @@ def google_login():
         conn.close()
 
         session['user_id'] = user_id
+        print("Session after login:", dict(session))
         return jsonify({
             "user": {
                 "id": user_id,
@@ -329,21 +357,50 @@ def detect():
         return jsonify({"error": "No file uploaded"}), 400
 
     file = request.files['file']
+    filename = secure_filename(file.filename)
+    filetype = filename.rsplit('.', 1)[-1].lower()
+    print(filetype)
 
     try:
-        result, confidence = predict(file, model)
+        # 1. Upload file to Cloudinary
+        cloud_result = cloudinary_upload(file, resource_type="auto")
+        print("DEBUG cloud_result:", cloud_result)
+        file_url = cloud_result['secure_url']
 
+        # 2. Run prediction on the uploaded file (file.stream reset needed sometimes)
+        file.stream.seek(0)
+        print("hello")
+        result, confidence = predict(file, models=model)
+        print("hello1")
+        print("Prediction result:", result, "Confidence:", confidence)
+
+        # 3. Save to database
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO results (filename, prediction, confidence, user_id) VALUES (%s, %s, %s, %s)",
-            (file.filename, result, confidence, session['user_id'])
-        )
+
+        # Insert into results table (prediction + file URL + user ID)
+        cursor.execute("""
+            INSERT INTO results (filename, prediction, confidence, user_id, file_url)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (filename, result, confidence, session['user_id'], file_url))
+
+        # Insert into uploads table (for dashboard/statistics)
+        cursor.execute("""
+            INSERT INTO uploads (filename, filetype, result, file_url, user_id)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (filename, filetype, result, file_url, session['user_id']))
+
         conn.commit()
         cursor.close()
         conn.close()
 
-        return jsonify({"result": result, "confidence": confidence})
+        return jsonify({
+            "result": result,
+            "confidence": confidence,
+            "file_url": file_url,
+            "filename": filename
+        })
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
