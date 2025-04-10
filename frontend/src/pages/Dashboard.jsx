@@ -1,33 +1,37 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Bar, Pie, Line } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip as ChartTooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  Filler
-} from "chart.js";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import Header from "../components/Header";
 import { useAuth } from "../context/AuthContext";
 import { FileText, ShieldCheck, ShieldX } from "lucide-react";
 
-ChartJS.register(
-  ArcElement,
-  ChartTooltip,
-  Legend,
+// Chart.js imports
+import {
+  Line, Pie, Bar
+} from "react-chartjs-2";
+import {
+  Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  BarElement,
   PointElement,
   LineElement,
+  ArcElement,
+  BarElement,
+  Tooltip,
+  Legend,
+  Filler
+} from "chart.js";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ArcElement,
+  BarElement,
+  Tooltip,
+  Legend,
   Filler
 );
 
@@ -88,18 +92,20 @@ const Dashboard = () => {
     return acc;
   }, {});
 
-  const lineChartData = {
-    labels: Object.keys(trendData),
+  const lineData = Object.keys(trendData).map((date) => ({
+    date,
+    uploads: trendData[date],
+  })).sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  // Chart.js datasets
+  const pieChartData = {
+    labels: chartData.map((d) => d.name),
     datasets: [
       {
-        label: "Uploads",
-        data: Object.values(trendData),
-        fill: true,
-        backgroundColor: "rgba(16, 185, 129, 0.2)",
-        borderColor: "#10B981",
-        tension: 0.4,
-        pointRadius: 5,
-        pointHoverRadius: 7,
+        label: "Prediction Summary",
+        data: chartData.map((d) => d.value),
+        backgroundColor: ["#10b981", "#ef4444"],
+        borderWidth: 1,
       },
     ],
   };
@@ -116,15 +122,43 @@ const Dashboard = () => {
     ],
   };
 
-  const pieChartData = {
-    labels: chartData.map((d) => d.name),
+  const barChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
+  const lineChartData = {
+    labels: lineData.map((d) => d.date),
     datasets: [
       {
-        data: chartData.map((d) => d.value),
-        backgroundColor: ["#10B981", "#EF4444"],
-        borderWidth: 1,
+        label: "Uploads Over Time",
+        data: lineData.map((d) => d.uploads),
+        fill: true,
+        borderColor: "#10b981",
+        backgroundColor: "rgba(16,185,129,0.2)",
+        tension: 0.4,
       },
     ],
+  };
+
+  const lineChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { stepSize: 1 },
+      },
+    },
   };
 
   return (
@@ -189,28 +223,25 @@ const Dashboard = () => {
 
         {/* 📈 Charts Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Pie Chart */}
-          <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow h-[350px]">
+          <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow">
             <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
               Prediction Summary
             </h4>
-            <Pie data={pieChartData} options={{ responsive: true, maintainAspectRatio: false }} height={250} />
+            <Pie data={pieChartData} />
           </div>
 
-          {/* Bar Chart */}
-          <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow h-[350px]">
+          <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow">
             <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
               Top 5 Recent Confidences
             </h4>
-            <Bar data={barChartData} options={{ responsive: true, maintainAspectRatio: false }} height={250} />
+            <Bar data={barChartData} options={barChartOptions} />
           </div>
 
-          {/* Line Chart */}
-          <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow h-[350px]">
+          <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow">
             <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
               Upload Trend Over Time
             </h4>
-            <Line data={lineChartData} options={{ responsive: true, maintainAspectRatio: false }} height={250} />
+            <Line data={lineChartData} options={lineChartOptions} />
           </div>
         </div>
 

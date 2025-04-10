@@ -282,7 +282,7 @@ const FileUploader = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-3xl font-extrabold bg-gradient-to-r from-gray-900 to-indigo-400 bg-clip-text text-transparent text-center dark:text-white mb-10"
         >
-          🛡️ StegoShield - File Analyzer
+          StegoShield - File Analyzer
         </motion.h2>
 
         <div className="flex flex-col md:flex-row gap-6">
