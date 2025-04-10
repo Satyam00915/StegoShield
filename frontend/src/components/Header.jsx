@@ -3,6 +3,7 @@ import logo from "../assets/logo.png";
 import "./landing.css";
 import { useAuth } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -38,7 +39,7 @@ const Header = () => {
   };
 
   const Brand = () => (
-    <div className="flex items-center custom-container custom-padding justify-between py-4 md:block">
+    <div className="flex items-center justify-between py-4 px-4 md:px-0 md:block">
       <a href="/">
         <img src={logo} alt="StegoShield logo" className="w-32 h-auto" />
       </a>
