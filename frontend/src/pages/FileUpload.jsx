@@ -54,7 +54,7 @@ const FileUploader = () => {
       confidence,
       date: new Date().toLocaleString(),
     };
-    const updated = [newItem, ...history].slice(0, 10);
+    const updated = [newItem, ...history];
     localStorage.setItem("uploadHistory", JSON.stringify(updated));
     setHistory(updated);
   };

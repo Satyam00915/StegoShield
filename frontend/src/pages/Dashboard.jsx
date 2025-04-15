@@ -102,7 +102,7 @@ const Dashboard = () => {
       {
         label: "Prediction Summary",
         data: chartData.map((d) => d.value),
-        backgroundColor: ["#3891ab", "#0e4f63"],
+        backgroundColor: ["#0e4f63","#3891ab"],
         borderWidth: 3,
       },
     ],
@@ -287,7 +287,7 @@ const Dashboard = () => {
             <p className="text-gray-500 dark:text-gray-400">No uploads found.</p>
           ) : (
             <ul className="divide-y divide-gray-200 dark:divide-gray-700 max-h-72 overflow-y-auto pr-1">
-              {filteredHistory.slice(0, 10).map((item, i) => (
+              {filteredHistory.map((item, i) => (
                 <motion.li
                   key={i}
                   initial={{ opacity: 0, y: 10 }}
