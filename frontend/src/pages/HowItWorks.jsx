@@ -43,10 +43,11 @@ const HowItWorks = () => {
   }, [isLoggedIn]);
 
   return (
-    <>
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <Header />
+
       <motion.div
-        className="min-h-screen bg-gray-100 dark:bg-gray-900 py-20 px-6"
+        className="py-20 px-6"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
@@ -56,7 +57,7 @@ const HowItWorks = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-4xl font-extrabold text-center bg-gradient-to-r from-gray-900 to-indigo-400 bg-clip-text text-transparent mb-14"
+            className="text-5xl font-extrabold text-center bg-gradient-to-r from-gray-900 to-indigo-400 bg-clip-text text-transparent mb-14"
           >
             StegoShield Work Flow
           </motion.h2>
@@ -71,7 +72,7 @@ const HowItWorks = () => {
                 className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300"
               >
                 <div className="text-5xl mb-4">{item.icon}</div>
-                <h3 className="text-2xl font-semibold text-gray-900 mb-3">
+                <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3">
                   {item.step}
                 </h3>
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
@@ -96,7 +97,7 @@ const HowItWorks = () => {
           </motion.div>
         </div>
       </motion.div>
-    </>
+    </div>
   );
 };
 

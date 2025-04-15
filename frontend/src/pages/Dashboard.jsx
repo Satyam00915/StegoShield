@@ -6,7 +6,6 @@ import Header from "../components/Header";
 import { useAuth } from "../context/AuthContext";
 import { FileText, ShieldCheck, ShieldX } from "lucide-react";
 
-// Chart.js imports
 import {
   Line, Pie, Bar
 } from "react-chartjs-2";
@@ -97,15 +96,14 @@ const Dashboard = () => {
     uploads: trendData[date],
   })).sort((a, b) => new Date(a.date) - new Date(b.date));
 
-  // Chart.js datasets
   const pieChartData = {
     labels: chartData.map((d) => d.name),
     datasets: [
       {
         label: "Prediction Summary",
         data: chartData.map((d) => d.value),
-        backgroundColor: ["#10b981", "#ef4444"],
-        borderWidth: 1,
+        backgroundColor: ["#3891ab", "#0e4f63"],
+        borderWidth: 3,
       },
     ],
   };
@@ -116,20 +114,32 @@ const Dashboard = () => {
       {
         label: "Confidence (%)",
         data: barData.map((d) => d.confidence),
-        backgroundColor: "#6366f1",
-        borderRadius: 6,
+        backgroundColor: "#4a446d",
+        borderRadius: 4,
       },
     ],
   };
 
   const barChartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
     },
+    layout: {
+      padding: 30
+    },
     scales: {
+      x: {
+        ticks: {
+          font: { size: 10 },
+        },
+      },
       y: {
         beginAtZero: true,
+        ticks: {
+          font: { size: 12 },
+        },
       },
     },
   };
@@ -141,8 +151,8 @@ const Dashboard = () => {
         label: "Uploads Over Time",
         data: lineData.map((d) => d.uploads),
         fill: true,
-        borderColor: "#10b981",
-        backgroundColor: "rgba(16,185,129,0.2)",
+        borderColor: "#219b97",
+        backgroundColor: "rgba(33,155,151,0.2)",
         tension: 0.4,
       },
     ],
@@ -150,19 +160,31 @@ const Dashboard = () => {
 
   const lineChartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
     },
+    layout: {
+      padding: 30
+    },
     scales: {
+      x: {
+        ticks: {
+          font: { size: 10 },
+        },
+      },
       y: {
         beginAtZero: true,
-        ticks: { stepSize: 1 },
+        ticks: {
+          stepSize: 1,
+          font: { size: 12 },
+        },
       },
     },
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 px-4 py-6">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 px-4 ">
       <Toaster position="top-right" />
       <Header />
 
@@ -170,12 +192,12 @@ const Dashboard = () => {
         <motion.h2
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-3xl font-extrabold bg-gradient-to-r from-gray-900 to-indigo-400 bg-clip-text text-transparent dark:text-white"
+          className="text-5xl font-extrabold bg-gradient-to-r from-gray-900 to-indigo-400 bg-clip-text text-transparent dark:text-white"
         >
           Welcome back, {user?.name || "User"}!
         </motion.h2>
 
-        {/* 📊 Stats Section */}
+        {/* 🧮 Stats Section */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-4">
           {[
             {
@@ -221,24 +243,26 @@ const Dashboard = () => {
           ))}
         </div>
 
-        {/* 📈 Charts Section */}
+        {/* 📊 Charts in One Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow">
-            <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
+          <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow h-96 flex flex-col items-center">
+            <h4 className="text-xl font-bold mb-4 text-gray-800 dark:text-white text-center">
               Prediction Summary
             </h4>
-            <Pie data={pieChartData} />
+            <div className="w-full h-full">
+              <Pie data={pieChartData} options={{ maintainAspectRatio: false }} />
+            </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow">
-            <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow h-96">
+            <h4 className="text-xl font-bold mb-4 text-gray-800 dark:text-white text-center">
               Top 5 Recent Confidences
             </h4>
             <Bar data={barChartData} options={barChartOptions} />
           </div>
 
-          <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow">
-            <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
+          <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow h-96">
+            <h4 className="text-xl font-bold mb-4 text-gray-800 dark:text-white text-center">
               Upload Trend Over Time
             </h4>
             <Line data={lineChartData} options={lineChartOptions} />
@@ -247,7 +271,7 @@ const Dashboard = () => {
 
         {/* 🗂️ Upload History */}
         <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow mt-6">
-          <h4 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+          <h4 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
             Recent Upload History
           </h4>
 

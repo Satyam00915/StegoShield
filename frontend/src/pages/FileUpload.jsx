@@ -280,7 +280,7 @@ const FileUploader = () => {
         <motion.h2
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-3xl font-extrabold bg-gradient-to-r from-gray-900 to-indigo-400 bg-clip-text text-transparent text-center dark:text-white mb-10"
+          className="text-5xl font-extrabold bg-gradient-to-r from-gray-900 to-indigo-400 bg-clip-text text-transparent text-center dark:text-white mb-14"
         >
           StegoShield - File Analyzer
         </motion.h2>
@@ -310,14 +310,9 @@ const FileUploader = () => {
                   <h4 className="text-md font-semibold text-gray-800 dark:text-white truncate">{item.name}</h4>
                   <p className="text-sm mt-1 text-gray-700 dark:text-gray-300">
                     <span className="font-medium">Result:</span>{" "}
-                    <span className={`font-bold ${item.result === "Malicious" ? "text-red-600" : "text-green-600"}`}>
-                      {item.result}
-                    </span>
+                    <span className={item.result === "Malicious" ? "text-red-600" : "text-green-600"}>{item.result}</span>
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    <span className="font-medium">Confidence:</span> {(item.confidence * 100).toFixed(2)}%
-                  </p>
-                  <p className="text-xs mt-2 text-gray-500 dark:text-gray-400 italic">{item.date}</p>
+                  <p className="text-xs mt-1 text-gray-500 dark:text-gray-400">{item.date}</p>
                 </motion.div>
               ))}
             </div>

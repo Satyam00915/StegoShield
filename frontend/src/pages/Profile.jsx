@@ -113,9 +113,13 @@ const Profile = () => {
   const strength = getPasswordStrength(profile.password);
 
   return (
-    <>
-      <Header />
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-10 px-4">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+      {/* Transparent Header */}
+      <div className="bg-transparent shadow-none">
+        <Header />
+      </div>
+
+      <div className="py-10 px-4">
         <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow p-6 space-y-6">
           <motion.h2
             initial={{ opacity: 0, y: -10 }}
@@ -247,7 +251,7 @@ const Profile = () => {
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
