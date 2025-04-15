@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { isLoggedIn, setIsLoggedIn } = useAuth();
+  const [darkMode, setDarkMode] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,7 +22,25 @@ const Header = () => {
   useEffect(() => {
     const user = localStorage.getItem("user");
     setIsLoggedIn(!!user);
+
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      document.documentElement.classList.add("dark");
+      setDarkMode(true);
+    }
   }, []);
+
+  const toggleDarkMode = () => {
+    const isDark = !darkMode;
+    setDarkMode(isDark);
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
@@ -45,7 +64,7 @@ const Header = () => {
       </a>
       <div className="md:hidden">
         <button
-          className="menu-btn text-gray-600 hover:text-gray-800"
+          className="menu-btn text-gray-600 hover:text-gray-800 dark:text-gray-200"
           onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? (
@@ -81,7 +100,7 @@ const Header = () => {
       ];
 
   return (
-    <header className="relative z-10">
+    <header className="relative z-10 bg-white dark:bg-gray-900 text-gray-800 dark:text-white transition-all">
       {/* Mobile Brand */}
       <div className={`md:hidden ${isOpen ? "mx-2 pb-5" : "hidden"}`}>
         <Brand />
@@ -90,7 +109,7 @@ const Header = () => {
       <nav
         className={`pb-5 md:text-sm ${
           isOpen
-            ? "absolute top-0 inset-x-0 bg-white shadow-lg rounded-xl border mx-2 mt-2 md:static md:shadow-none md:border-none md:mx-0"
+            ? "absolute top-0 inset-x-0 bg-white dark:bg-gray-900 shadow-lg rounded-xl border dark:border-gray-700 mx-2 mt-2 md:static md:shadow-none md:border-none md:mx-0"
             : ""
         }`}
       >
@@ -110,7 +129,7 @@ const Header = () => {
                 <li key={idx}>
                   <a
                     href={item.path}
-                    className="block text-gray-700 hover:text-gray-900 text-center"
+                    className="block text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white text-center"
                   >
                     {item.title}
                   </a>
@@ -118,10 +137,27 @@ const Header = () => {
               ))}
             </ul>
 
+            {/* Dark Mode Toggle (Slider) */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-700 dark:text-gray-300">☀️</span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={darkMode}
+                  onChange={toggleDarkMode}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-300 dark:bg-gray-600 rounded-full peer peer-checked:bg-blue-600 transition-all duration-300"></div>
+                <div
+                  className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-md transform peer-checked:translate-x-5 transition-all duration-300"
+                ></div>
+              </label>
+              <span className="text-sm text-gray-700 dark:text-gray-300">🌙</span>
+            </div>
+
             {/* Auth Links */}
             {isLoggedIn ? (
               <div className="flex flex-col items-center gap-4 mt-4 md:flex-row md:gap-4 md:mt-0">
-                {/* Profile Link */}
                 <Link
                   to="/profile"
                   className="flex items-center gap-2 bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition"
@@ -137,15 +173,11 @@ const Header = () => {
                       {getUser()?.name?.charAt(0).toUpperCase() || "U"}
                     </div>
                   )}
-
                   <div className="text-sm text-gray-800 dark:text-white">
-                    <p className="font-semibold">
-                      {getUser()?.name || "User"}
-                    </p>
+                    <p className="font-semibold">{getUser()?.name || "User"}</p>
                   </div>
                 </Link>
 
-                {/* Logout */}
                 <button
                   onClick={handleLogout}
                   className="inline-flex items-center justify-center px-4 py-2 text-white bg-gray-800 hover:bg-gray-700 rounded-full text-sm"

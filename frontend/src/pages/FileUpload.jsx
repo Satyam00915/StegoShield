@@ -276,7 +276,7 @@ const FileUploader = () => {
   return (
     <>
       <Header />
-      <div className="max-w-7xl mx-auto my-10 px-4">
+      <div className="max-w-7xl mx-auto px-4 dark:bg-gray-900 ">
         <motion.h2
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
