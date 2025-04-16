@@ -100,7 +100,7 @@ const Header = () => {
       ];
 
   return (
-    <header className="relative z-10 bg-white dark:bg-gray-900 text-gray-800 dark:text-white transition-all">
+    <header className="relative z-10 text-gray-800 dark:text-white transition-all">
       {/* Mobile Brand */}
       <div className={`md:hidden ${isOpen ? "mx-2 pb-5" : "hidden"}`}>
         <Brand />

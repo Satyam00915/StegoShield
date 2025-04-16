@@ -6,9 +6,7 @@ import Header from "../components/Header";
 import { useAuth } from "../context/AuthContext";
 import { FileText, ShieldCheck, ShieldX } from "lucide-react";
 
-import {
-  Line, Pie, Bar
-} from "react-chartjs-2";
+import { Line, Pie, Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -39,6 +37,8 @@ const Dashboard = () => {
   const [history, setHistory] = useState([]);
   const [filteredHistory, setFilteredHistory] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState("All");
+
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
 
@@ -61,11 +61,20 @@ const Dashboard = () => {
   }, [isLoggedIn]);
 
   useEffect(() => {
-    const filtered = history.filter((item) =>
-      item.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    let filtered = [...history];
+
+    if (activeFilter !== "All") {
+      filtered = filtered.filter((item) => item.result === activeFilter);
+    }
+
+    if (searchQuery.trim() !== "") {
+      filtered = filtered.filter((item) =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
     setFilteredHistory(filtered);
-  }, [searchQuery, history]);
+  }, [searchQuery, activeFilter, history]);
 
   const summary = filteredHistory.reduce(
     (acc, curr) => {
@@ -102,7 +111,7 @@ const Dashboard = () => {
       {
         label: "Prediction Summary",
         data: chartData.map((d) => d.value),
-        backgroundColor: ["#0e4f63","#3891ab"],
+        backgroundColor: ["#0e4f63", "#3891ab"],
         borderWidth: 3,
       },
     ],
@@ -114,7 +123,7 @@ const Dashboard = () => {
       {
         label: "Confidence (%)",
         data: barData.map((d) => d.confidence),
-        backgroundColor: "#4a446d",
+        backgroundColor: "#0e4f63",
         borderRadius: 4,
       },
     ],
@@ -123,11 +132,15 @@ const Dashboard = () => {
   const barChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    animation: {
+      duration: 1000,
+      easing: "easeOutQuart",
+    },
     plugins: {
       legend: { display: false },
     },
     layout: {
-      padding: 30
+      padding: 30,
     },
     scales: {
       x: {
@@ -161,11 +174,15 @@ const Dashboard = () => {
   const lineChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    animation: {
+      duration: 1500,
+      easing: "easeInOutCubic",
+    },
     plugins: {
       legend: { display: false },
     },
     layout: {
-      padding: 30
+      padding: 30,
     },
     scales: {
       x: {
@@ -184,7 +201,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 px-4 ">
+    <div className="min-h-screen bg-gray-800 dark:bg-gray-900 px-4">
       <Toaster position="top-right" />
       <Header />
 
@@ -192,7 +209,7 @@ const Dashboard = () => {
         <motion.h2
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-5xl font-extrabold bg-gradient-to-r from-gray-900 to-indigo-400 bg-clip-text text-transparent dark:text-white"
+          className="text-5xl font-extrabold bg-gradient-to-r from-gray-300 to-indigo-400 bg-clip-text text-transparent dark:from-gray-500 dark:to-gray-400"
         >
           Welcome back, {user?.name || "User"}!
         </motion.h2>
@@ -205,22 +222,22 @@ const Dashboard = () => {
               value: filteredHistory.length,
               icon: <FileText className="text-blue-500" size={28} />,
               color: "bg-blue-100 dark:bg-blue-600/20",
-              textColor: "text-gray-800 dark:text-white"
+              textColor: "text-gray-800 dark:text-white",
             },
             {
               label: "Safe Files",
               value: summary["Safe"] || 0,
               icon: <ShieldCheck className="text-green-500" size={28} />,
               color: "bg-green-100 dark:bg-green-600/20",
-              textColor: "text-green-600 dark:text-green-300"
+              textColor: "text-green-600 dark:text-green-300",
             },
             {
               label: "Malicious Files",
               value: summary["Malicious"] || 0,
               icon: <ShieldX className="text-red-500" size={28} />,
               color: "bg-red-100 dark:bg-red-600/20",
-              textColor: "text-red-600 dark:text-red-300"
-            }
+              textColor: "text-red-600 dark:text-red-300",
+            },
           ].map((card, i) => (
             <motion.div
               key={i}
@@ -228,40 +245,53 @@ const Dashboard = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
               whileHover={{ scale: 1.03 }}
-              className="p-5 rounded-xl bg-white dark:bg-gray-800 shadow flex items-center gap-4 transition-all duration-300"
+              className="p-5 rounded-xl bg-gray-700 dark:bg-gray-800 shadow flex items-center gap-4"
             >
               <div className={`p-3 rounded-full ${card.color}`}>{card.icon}</div>
               <div>
-                <h4 className="text-sm text-gray-500 dark:text-gray-400">
-                  {card.label}
-                </h4>
-                <p className={`text-2xl font-bold ${card.textColor}`}>
-                  {card.value}
-                </p>
+                <h4 className="text-sm text-gray-300 dark:text-gray-400">{card.label}</h4>
+                <p className={`text-2xl font-bold ${card.textColor}`}>{card.value}</p>
               </div>
             </motion.div>
           ))}
         </div>
 
-        {/* 📊 Charts in One Row */}
+        {/* 📁 Filter Tabs */}
+        <div className="flex gap-4 mt-6 items-center">
+          {["All", "Safe", "Malicious"].map((status) => (
+            <button
+              key={status}
+              className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
+                activeFilter === status
+                  ? "bg-gray-600 text-white shadow"
+                  : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+              }`}
+              onClick={() => setActiveFilter(status)}
+            >
+              {status}
+            </button>
+          ))}
+        </div>
+
+        {/* 📊 Charts */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow h-96 flex flex-col items-center">
+          <div className="bg-gray-300 dark:bg-gray-800 p-5 rounded-xl shadow h-96 flex flex-col items-center">
             <h4 className="text-xl font-bold mb-4 text-gray-800 dark:text-white text-center">
               Prediction Summary
             </h4>
             <div className="w-full h-full">
-              <Pie data={pieChartData} options={{ maintainAspectRatio: false }} />
+              <Pie data={pieChartData} options={{ maintainAspectRatio: false, animation: { duration: 1200, easing: "easeOutBounce" } }} />
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow h-96">
+          <div className="bg-gray-300 dark:bg-gray-800 p-4 rounded-xl shadow h-96">
             <h4 className="text-xl font-bold mb-4 text-gray-800 dark:text-white text-center">
               Top 5 Recent Confidences
             </h4>
             <Bar data={barChartData} options={barChartOptions} />
           </div>
 
-          <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow h-96">
+          <div className="bg-gray-300 dark:bg-gray-800 p-5 rounded-xl shadow h-96">
             <h4 className="text-xl font-bold mb-4 text-gray-800 dark:text-white text-center">
               Upload Trend Over Time
             </h4>
@@ -270,7 +300,7 @@ const Dashboard = () => {
         </div>
 
         {/* 🗂️ Upload History */}
-        <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow mt-6">
+        <div className="bg-gray-300 dark:bg-gray-800 p-5 rounded-xl shadow mt-6">
           <h4 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
             Recent Upload History
           </h4>
@@ -286,7 +316,7 @@ const Dashboard = () => {
           {filteredHistory.length === 0 ? (
             <p className="text-gray-500 dark:text-gray-400">No uploads found.</p>
           ) : (
-            <ul className="divide-y divide-gray-200 dark:divide-gray-700 max-h-72 overflow-y-auto pr-1">
+            <ul className="divide-y divide-gray-300 dark:divide-gray-700 max-h-72 overflow-y-auto pr-1">
               {filteredHistory.map((item, i) => (
                 <motion.li
                   key={i}
@@ -294,7 +324,7 @@ const Dashboard = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
                   className={`flex items-start justify-between p-3 rounded-lg transition hover:bg-gray-50 dark:hover:bg-gray-700 ${
-                    i % 2 === 0 ? "bg-gray-50 dark:bg-gray-700/40" : "bg-white dark:bg-gray-800"
+                    i % 2 === 0 ? "bg-gray-100 dark:bg-gray-700/40" : "bg-white dark:bg-gray-800"
                   }`}
                 >
                   <div className="flex flex-col">
