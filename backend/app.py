@@ -404,6 +404,57 @@ def detect():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@app.route("/api/history", methods=["GET"])
+def get_user_history():
+    user_id = request.args.get("user_id")
+
+    if not user_id:
+        return jsonify({"error": "Missing user_id"}), 400
+
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # Fetch from uploads table for dashboard history
+        cursor.execute("""
+            SELECT filename, filetype, result, file_url, created_at 
+            FROM uploads 
+            WHERE user_id = %s
+            ORDER BY created_at DESC
+        """, (user_id,))
+        rows = cursor.fetchall()
+
+        history = []
+        for row in rows:
+            history.append({
+                "name": row[0],
+                "type": row[1],
+                "result": row[2],
+                "url": row[3],
+                "date": row[4].strftime("%Y-%m-%d %H:%M:%S") if row[4] else None,
+            })
+
+        # Optionally add confidence from `results` table if needed:
+        cursor.execute("""
+            SELECT filename, confidence 
+            FROM results 
+            WHERE user_id = %s
+        """, (user_id,))
+        result_map = {r[0]: r[1] for r in cursor.fetchall()}
+
+        for item in history:
+            item["confidence"] = result_map.get(item["name"], 0)
+
+        cursor.close()
+        conn.close()
+
+        return jsonify(history)
+
+    except Exception as e:
+        print("Error fetching history:", e)
+        return jsonify({"error": str(e)}), 500
+
 
 # --------------------- FRONTEND ROUTING FALLBACK ---------------------
 
