@@ -70,7 +70,7 @@ const Blog = () => {
   }, [isLoggedIn]);
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="min-h-screen bg-blue-50 dark:bg-gray-900 ">
       <Header />
       <motion.div
         className="py-20 px-6"
@@ -83,7 +83,7 @@ const Blog = () => {
             initial={{ opacity: 0, y: -30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-5xl font-extrabold text-center bg-gradient-to-r from-gray-900 to-indigo-400 bg-clip-text text-transparent mb-16"
+            className="text-5xl font-extrabold text-center bg-gradient-to-r from-[#113742] to-[#8fbcc4] bg-clip-text text-transparent mb-16 "
           >
             StegoShield Blog
           </motion.h2>
@@ -96,12 +96,12 @@ const Blog = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
                 whileHover={{ scale: 1.02 }}
-                className="group relative flex flex-col overflow-hidden rounded-2xl shadow-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 transition-all duration-300"
+                className="group relative flex flex-col overflow-hidden rounded-2xl shadow-xl bg-blue-100 dark:bg-zinc-900 border border-blue-200 dark:border-zinc-700 transition-all duration-300 "
               >
-                <div className="w-1.5 bg-gradient-to-b via-purple-500 from-gray-900 group-hover:scale-y-110 transition-transform duration-300" />
+                <div className="w-1.5 bg-gradient-to-b via-purple-500 from-blue-900 group-hover:scale-y-110 transition-transform duration-300" />
                 <div className="p-6 flex flex-col justify-between h-full dark:bg-gray-800">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 bg-indigo-100 dark:bg-indigo-500/20 rounded-full shadow-inner">
+                    <div className="p-3 bg-blue-100 dark:bg-indigo-500/20 rounded-full shadow-inner ">
                       {blog.icon}
                     </div>
                     <h3 className="text-lg font-semibold text-gray-800 dark:text-white leading-tight">
@@ -129,7 +129,7 @@ const Blog = () => {
               whileHover={{ scale: 1.06 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate("/how-it-works")}
-              className="bg-gray-900 dark:bg-gray-800 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:bg-gray-800 transition-all duration-300"
+              className="bg-[#113742] dark:bg-gray-800 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:bg-gray-900 transition-all duration-300"
             >
               Learn How It Works
             </motion.button>

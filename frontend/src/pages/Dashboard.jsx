@@ -201,7 +201,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-800 dark:bg-gray-900 px-4">
+    <div className="min-h-screen bg-blue-50 dark:bg-gray-800 px-4 ">
       <Toaster position="top-right" />
       <Header />
 
@@ -209,7 +209,7 @@ const Dashboard = () => {
         <motion.h2
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-5xl font-extrabold bg-gradient-to-r from-gray-300 to-indigo-400 bg-clip-text text-transparent dark:from-gray-500 dark:to-gray-400"
+          className="text-5xl font-extrabold bg-gradient-to-r from-[#113742] to-[#8fbcc4] bg-clip-text text-transparent dark:from-gray-500 dark:to-gray-400e"
         >
           Welcome back, {user?.name || "User"}!
         </motion.h2>
@@ -245,11 +245,11 @@ const Dashboard = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
               whileHover={{ scale: 1.03 }}
-              className="p-5 rounded-xl bg-gray-700 dark:bg-gray-800 shadow flex items-center gap-4"
+              className="p-5 rounded-xl bg-blue-100 dark:bg-gray-800 shadow flex items-center gap-4 border-2 border-blue-200"
             >
               <div className={`p-3 rounded-full ${card.color}`}>{card.icon}</div>
               <div>
-                <h4 className="text-sm text-gray-300 dark:text-gray-400">{card.label}</h4>
+                <h4 className="text-sm text-gray-600 dark:text-gray-400">{card.label}</h4>
                 <p className={`text-2xl font-bold ${card.textColor}`}>{card.value}</p>
               </div>
             </motion.div>
@@ -263,8 +263,8 @@ const Dashboard = () => {
               key={status}
               className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
                 activeFilter === status
-                  ? "bg-gray-600 text-white shadow"
-                  : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+                  ? "bg-blue-400 text-white shadow"
+                  : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-blue-300 dark:hover:bg-blue-600"
               }`}
               onClick={() => setActiveFilter(status)}
             >
@@ -275,7 +275,7 @@ const Dashboard = () => {
 
         {/* 📊 Charts */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gray-300 dark:bg-gray-800 p-5 rounded-xl shadow h-96 flex flex-col items-center">
+          <div className="bg-blue-100 dark:bg-gray-800 p-5 rounded-xl shadow h-96 flex flex-col items-center border-2 border-blue-200">
             <h4 className="text-xl font-bold mb-4 text-gray-800 dark:text-white text-center">
               Prediction Summary
             </h4>
@@ -284,14 +284,14 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="bg-gray-300 dark:bg-gray-800 p-4 rounded-xl shadow h-96">
+          <div className="bg-blue-100 dark:bg-gray-800 p-4 rounded-xl shadow h-96 border-2 border-blue-200">
             <h4 className="text-xl font-bold mb-4 text-gray-800 dark:text-white text-center">
               Top 5 Recent Confidences
             </h4>
             <Bar data={barChartData} options={barChartOptions} />
           </div>
 
-          <div className="bg-gray-300 dark:bg-gray-800 p-5 rounded-xl shadow h-96">
+          <div className="bg-blue-100 dark:bg-gray-800 p-5 rounded-xl shadow h-96 border-2 border-blue-200">
             <h4 className="text-xl font-bold mb-4 text-gray-800 dark:text-white text-center">
               Upload Trend Over Time
             </h4>
@@ -300,7 +300,7 @@ const Dashboard = () => {
         </div>
 
         {/* 🗂️ Upload History */}
-        <div className="bg-gray-300 dark:bg-gray-800 p-5 rounded-xl shadow mt-6">
+        <div className="bg-blue-100 dark:bg-gray-800 p-5 rounded-xl shadow mt-6 border-2 border-blue-200">
           <h4 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
             Recent Upload History
           </h4>
@@ -308,7 +308,7 @@ const Dashboard = () => {
           <input
             type="text"
             placeholder="🔍 Search by filename..."
-            className="mb-4 px-4 py-2 rounded-lg border w-full dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="mb-4 px-4 py-2 rounded-lg border w-full bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-300"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -324,7 +324,7 @@ const Dashboard = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
                   className={`flex items-start justify-between p-3 rounded-lg transition hover:bg-gray-50 dark:hover:bg-gray-700 ${
-                    i % 2 === 0 ? "bg-gray-100 dark:bg-gray-700/40" : "bg-white dark:bg-gray-800"
+                    i % 2 === 0 ? "bg-blue-50 dark:bg-gray-700/40" : "bg-white dark:bg-gray-800"
                   }`}
                 >
                   <div className="flex flex-col">
@@ -334,7 +334,7 @@ const Dashboard = () => {
                     <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       {new Date(item.date).toLocaleString()}
                     </span>
-                    <span className="text-xs mt-1 inline-flex items-center gap-1 text-gray-600 dark:text-gray-300">
+                    <span className="text-xs mt-1 inline-flex items-center gap-1 text-gray-600 dark:text-gray-300 ">
                       📁 <span className="capitalize">{item.filetype || "unknown"}</span>
                     </span>
                   </div>
@@ -349,7 +349,7 @@ const Dashboard = () => {
                     >
                       {item.result === "Safe" ? "✅ Safe" : "❌ Malicious"}
                     </span>
-                    <p className="text-sm font-semibold text-indigo-500">
+                    <p className="text-sm font-semibold text-indigo-500 ">
                       {(item.confidence * 100).toFixed(2)}%
                     </p>
                   </div>

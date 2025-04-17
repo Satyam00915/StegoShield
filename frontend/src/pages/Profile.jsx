@@ -113,18 +113,18 @@ const Profile = () => {
   const strength = getPasswordStrength(profile.password);
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="min-h-screen bg-blue-50 dark:bg-gray-900">
       {/* Transparent Header */}
-      <div className="bg-transparent shadow-none">
+      <div className="bg-transparent shadow-none ">
         <Header />
       </div>
 
-      <div className="py-10 px-4">
-        <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow p-6 space-y-6">
+      <div className="py-10 px-4 ">
+        <div className="max-w-3xl mx-auto bg-blue-100 dark:bg-gray-800 rounded-xl shadow p-6 space-y-6 border border-blue-200 dark:border-gray-700">
           <motion.h2
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-2xl font-bold text-center text-gray-800 dark:text-white"
+            className="text-2xl font-bold text-center text-gray-800 dark:text-white "
           >
             Profile Settings
           </motion.h2>
@@ -137,10 +137,10 @@ const Profile = () => {
                 `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name || "User")}&background=4f46e5&color=fff`
               }
               alt="avatar"
-              className="w-24 h-24 rounded-full border-4 border-indigo-500 object-cover"
+              className="w-24 h-24 rounded-full border-4 border-blue-500 object-cover"
             />
             <button
-              className="absolute bottom-0 right-0 p-1 bg-white rounded-full shadow hover:scale-110 transition"
+              className="absolute bottom-0 right-0 p-1 bg-white rounded-full shadow hover:scale-110 transition "
               onClick={() => fileInputRef.current.click()}
               title="Edit Photo"
             >
@@ -237,7 +237,7 @@ const Profile = () => {
           <div className="flex justify-center">
             <button
               onClick={handleSave}
-              className="px-6 py-2 text-white bg-gray-800 hover:bg-gray-700 rounded-full transition"
+              className="px-6 py-2 text-white bg-blue-500 hover:bg-blue-700 rounded-full transition"
             >
               Save Changes
             </button>

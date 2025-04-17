@@ -1,9 +1,7 @@
-// FileUploader.jsx
-
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
-import { Loader2, Upload, ShieldCheck, ShieldAlert, File } from "lucide-react";
+import { Loader2, Upload, ShieldCheck, ShieldAlert, File, X } from "lucide-react";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -31,6 +29,8 @@ const FileUploader = () => {
   const [videoProgress, setVideoProgress] = useState(0);
 
   const [history, setHistory] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedHistoryItem, setSelectedHistoryItem] = useState(null);
 
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
@@ -175,7 +175,7 @@ const FileUploader = () => {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full md:w-1/3 space-y-4 bg-white dark:bg-[#111827] p-5 rounded-lg shadow-lg"
+        className="w-full md:w-1/3 space-y-4 bg-blue-100 dark:bg-[#111827] p-5 rounded-lg shadow-lg border border-blue-200"
       >
         <h3 className="text-lg font-bold text-center text-gray-700 dark:text-white">{label}</h3>
 
@@ -221,7 +221,7 @@ const FileUploader = () => {
 
         <button
           onClick={() => handleAnalyze(file, setResult, setProgress, setAnalyzing)}
-          className={`w-full px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700 ${analyzing ? "cursor-not-allowed opacity-70" : ""}`}
+          className={`w-full px-4 py-2 bg-[#113742] text-white rounded-md hover:bg-gray-700 ${analyzing ? "cursor-not-allowed opacity-70" : ""}`}
           disabled={analyzing}
         >
           {analyzing ? (
@@ -276,11 +276,11 @@ const FileUploader = () => {
   return (
     <>
       <Header />
-      <div className="max-w-7xl mx-auto px-4 dark:bg-gray-900 ">
+      <div className="max-w-7xl mx-auto px-4 bg-blue-50 dark:bg-gray-900 ">
         <motion.h2
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-5xl font-extrabold bg-gradient-to-r from-gray-900 to-indigo-400 bg-clip-text text-transparent text-center dark:text-white mb-14"
+          className="text-5xl font-extrabold bg-gradient-to-r from-[#113742] to-[#8fbcc4] bg-clip-text text-transparent text-center dark:text-white mb-14"
         >
           StegoShield - File Analyzer
         </motion.h2>
@@ -301,7 +301,11 @@ const FileUploader = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
                   key={i}
-                  className={`rounded-lg p-4 shadow-md border transition transform hover:scale-[1.01] 
+                  onClick={() => {
+                    setSelectedHistoryItem(item);
+                    setShowModal(true);
+                  }}
+                  className={`cursor-pointer rounded-lg p-4 shadow-md border transition transform hover:scale-[1.01] 
                     ${item.result === "Malicious"
                       ? "bg-red-50 dark:bg-red-900 border-red-400 hover:shadow-xl hover:border-red-500"
                       : "bg-green-50 dark:bg-green-900 border-green-400 hover:border-green-500 hover:shadow-xl"
@@ -309,12 +313,33 @@ const FileUploader = () => {
                 >
                   <h4 className="text-md font-semibold text-gray-800 dark:text-white truncate">{item.name}</h4>
                   <p className="text-sm mt-1 text-gray-700 dark:text-gray-300">
-                    <span className="font-medium">Result:</span>{" "}
-                    <span className={item.result === "Malicious" ? "text-red-600" : "text-green-600"}>{item.result}</span>
+                  <span className="font-medium">Result:</span>{" "}
+                  <span className={item.result === "Malicious" ? "text-red-600" : "text-green-600"}>{item.result}</span>
                   </p>
-                  <p className="text-xs mt-1 text-gray-500 dark:text-gray-400">{item.date}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Confidence: {(item.confidence * 100).toFixed(2)}%</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500">{item.date}</p>
                 </motion.div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {showModal && selectedHistoryItem && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
+            <div className="bg-blue-50 dark:bg-gray-900 rounded-lg p-6 w-full max-w-md relative shadow-2xl">
+              <button
+                className="absolute top-2 right-2 text-gray-600 hover:text-red-500"
+                onClick={() => setShowModal(false)}
+              >
+                <X size={20} />
+              </button>
+              <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
+                File Details
+              </h3>
+              <p className="text-sm text-gray-700 dark:text-gray-300"><strong>Name:</strong> {selectedHistoryItem.name}</p>
+              <p className="text-sm text-gray-700 dark:text-gray-300"><strong>Result:</strong> {selectedHistoryItem.result}</p>
+              <p className="text-sm text-gray-700 dark:text-gray-300"><strong>Confidence:</strong> {(selectedHistoryItem.confidence * 100).toFixed(2)}%</p>
+              <p className="text-sm text-gray-700 dark:text-gray-300"><strong>Date:</strong> {selectedHistoryItem.date}</p>
             </div>
           </div>
         )}

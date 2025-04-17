@@ -43,7 +43,7 @@ const HowItWorks = () => {
   }, [isLoggedIn]);
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="min-h-screen bg-blue-50 dark:bg-gray-900">
       <Header />
 
       <motion.div
@@ -57,7 +57,7 @@ const HowItWorks = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-5xl font-extrabold text-center bg-gradient-to-r from-gray-900 to-indigo-400 bg-clip-text text-transparent mb-14"
+            className="text-5xl font-extrabold text-center bg-gradient-to-r from-[#113742] to-[#8fbcc4] bg-clip-text text-transparent mb-14"
           >
             StegoShield Work Flow
           </motion.h2>
@@ -69,10 +69,10 @@ const HowItWorks = () => {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.2 }}
-                className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300"
+                className="bg-blue-100 dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-blue-200"
               >
                 <div className="text-5xl mb-4">{item.icon}</div>
-                <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3">
+                <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3 ">
                   {item.step}
                 </h3>
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
@@ -90,7 +90,7 @@ const HowItWorks = () => {
           >
             <button
               onClick={() => navigate("/dashboard")}
-              className="bg-gray-900 dark:bg-gray-800 text-white px-8 py-3 rounded-full hover:bg-gray-800 transition duration-300 font-semibold text-lg shadow-md"
+              className="bg-[#113742] dark:bg-gray-800 text-white px-8 py-3 rounded-full hover:bg-gray-900 transition duration-300 font-semibold text-lg shadow-md"
             >
               Try It Now →
             </button>
