@@ -1,7 +1,8 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
-import { useEffect } from "react";
+import Footer from "../components/Footer";
+import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 import {
@@ -11,56 +12,197 @@ import {
   Eye,
   Code2,
   FileSearch,
+  ArrowRight,
+  Clock,
+  ChevronRight,
+  User,
+  Lock,
+  Network,
+  Terminal,
+  Shield,
+  FileCode,
 } from "lucide-react";
+import BlogDetail from "../components/BlogDetail";
 
-const blogs = [
+const blogsData = [
+  // Fundamentals
   {
+    id: 1,
     title: "What is Steganography?",
-    summary:
-      "A quick introduction to digital steganography and how attackers hide malicious payloads.",
+    summary: "A quick introduction to digital steganography and how attackers hide malicious payloads.",
+    content: "Steganography is the practice of concealing a file, message, image, or video within another file, message, image, or video. Unlike cryptography, which conceals the contents of a secret message, steganography conceals the very existence of the message. This article explores the basic techniques used in digital steganography and how they're applied in modern cybersecurity threats.",
     date: "April 2, 2025",
-    icon: <BookText className="w-6 h-6 text-indigo-500" />,
+    icon: <BookText className="w-6 h-6 text-[#0e4f63] dark:text-gray-400" />,
+    readTime: "5 min read",
+    category: "Fundamentals",
+    author: "Dr. Sarah Chen",
+    authorRole: "Security Researcher"
   },
   {
-    title: "Detecting Stego Files with AI",
-    summary:
-      "We explore how deep learning models like CNNs can be used to detect hidden data in images and audio.",
+    id: 2,
+    title: "History of Steganography",
+    summary: "From ancient techniques to modern digital implementations.",
+    content: "The history of steganography dates back to ancient Greece, where messages were hidden on wax tablets or by tattooing them on slaves' heads under grown-out hair. In World War II, the Germans used microdots to hide information. Today, digital steganography hides data in images, audio files, videos, and even network protocols.",
+    date: "April 3, 2025",
+    icon: <BookText className="w-6 h-6 text-[#0e4f63] dark:text-gray-400" />,
+    readTime: "7 min read",
+    category: "Fundamentals",
+    author: "Prof. James Wilson",
+    authorRole: "Cryptography Historian"
+  },
+  {
+    id: 3,
+    title: "Basic Steganography Techniques",
+    summary: "Learn the fundamental methods used to hide data in digital files.",
+    content: "This article covers the most common steganography techniques including LSB (Least Significant Bit) substitution, transform domain techniques, and spread spectrum methods. Each technique is explained with practical examples and visual demonstrations to help you understand how data can be concealed within various file types.",
     date: "April 4, 2025",
-    icon: <Brain className="w-6 h-6 text-indigo-500" />,
+    icon: <BookText className="w-6 h-6 text-[#0e4f63] dark:text-gray-400" />,
+    readTime: "6 min read",
+    category: "Fundamentals",
+    author: "Alex Morgan",
+    authorRole: "Security Analyst"
   },
+
+  // AI Research
   {
-    title: "Real-World Stego Attacks",
-    summary:
-      "A look at some real-world cases where steganography was used for malicious purposes.",
+    id: 4,
+    title: "Detecting Stego Files with AI",
+    summary: "How deep learning models can detect hidden data in images and audio.",
+    content: "Artificial intelligence has revolutionized steganalysis by enabling the detection of subtle statistical anomalies that human analysts might miss. Convolutional Neural Networks (CNNs) can analyze thousands of image features simultaneously, looking for patterns that indicate hidden data.",
     date: "April 5, 2025",
-    icon: <ShieldAlert className="w-6 h-6 text-indigo-500" />,
+    icon: <Brain className="w-6 h-6 text-[#0e4f63] dark:text-gray-400" />,
+    readTime: "8 min read",
+    category: "AI Research",
+    author: "Dr. Emily Zhang",
+    authorRole: "AI Specialist"
   },
   {
-    title: "Understanding Visual Steganalysis",
-    summary:
-      "How to visually inspect images for stego content using heatmaps and filters.",
+    id: 5,
+    title: "Neural Networks for Audio Steganalysis",
+    summary: "Applying RNNs to detect hidden data in audio files.",
+    content: "Recurrent Neural Networks (RNNs) are particularly effective for analyzing temporal patterns in audio files that may indicate steganographic content. This research paper presents our findings on using LSTM networks to achieve 98.7% detection accuracy on common audio steganography techniques.",
     date: "April 6, 2025",
-    icon: <Eye className="w-6 h-6 text-indigo-500" />,
+    icon: <Brain className="w-6 h-6 text-[#0e4f63] dark:text-gray-400" />,
+    readTime: "10 min read",
+    category: "AI Research",
+    author: "Dr. Raj Patel",
+    authorRole: "AI Researcher"
   },
+
+  // Case Studies
   {
-    title: "Behind the StegoShield AI Engine",
-    summary:
-      "Dive deep into the CNN, RNN, and EfficientNet-LSTM models powering StegoShield’s detection.",
+    id: 6,
+    title: "Real-World Stego Attacks",
+    summary: "Cases where steganography was used for malicious purposes.",
+    content: "From malware distribution to corporate espionage, steganography has been used in numerous high-profile attacks. One notable case involved hackers embedding command-and-control instructions in Instagram images. Another used audio files on YouTube to exfiltrate data.",
     date: "April 7, 2025",
-    icon: <Code2 className="w-6 h-6 text-indigo-500" />,
+    icon: <ShieldAlert className="w-6 h-6 text-[#0e4f63] dark:text-gray-400" />,
+    readTime: "6 min read",
+    category: "Case Studies",
+    author: "Mark Johnson",
+    authorRole: "Threat Intelligence Analyst"
   },
   {
-    title: "Manual vs. Automated Detection",
-    summary:
-      "A comparison between human analysis and AI-driven detection techniques in cybersecurity.",
+    id: 7,
+    title: "The StegoMalware Epidemic",
+    summary: "How steganography is being used in modern malware campaigns.",
+    content: "Recent malware campaigns have increasingly used steganography to hide malicious payloads in seemingly innocent files. This case study examines three major campaigns from the past year, showing their techniques and how they were eventually detected.",
     date: "April 8, 2025",
-    icon: <FileSearch className="w-6 h-6 text-indigo-500" />,
+    icon: <ShieldAlert className="w-6 h-6 text-[#0e4f63] dark:text-gray-400" />,
+    readTime: "9 min read",
+    category: "Case Studies",
+    author: "Lisa Wong",
+    authorRole: "Malware Analyst"
   },
+
+  // Techniques
+  {
+    id: 8,
+    title: "Understanding Visual Steganalysis",
+    summary: "How to visually inspect images for stego content.",
+    content: "Visual steganalysis techniques allow analysts to detect hidden data without complex algorithms. By applying specific filters and color adjustments, hidden patterns become visible. This guide walks through practical techniques using open-source tools.",
+    date: "April 9, 2025",
+    icon: <Eye className="w-6 h-6 text-[#0e4f63] dark:text-gray-400" />,
+    readTime: "7 min read",
+    category: "Techniques",
+    author: "Lisa Rodriguez",
+    authorRole: "Forensic Analyst"
+  },
+  {
+    id: 9,
+    title: "Advanced Statistical Analysis Methods",
+    summary: "Statistical techniques for detecting hidden data.",
+    content: "This article dives deep into statistical methods for steganalysis, including chi-square analysis, RS analysis, and sample pair analysis. Each method is explained with mathematical foundations and practical implementation examples.",
+    date: "April 10, 2025",
+    icon: <Terminal className="w-6 h-6 text-[#0e4f63] dark:text-gray-400" />,
+    readTime: "12 min read",
+    category: "Techniques",
+    author: "Dr. Michael Brown",
+    authorRole: "Data Scientist"
+  },
+
+  // Technology
+  {
+    id: 10,
+    title: "Behind the StegoShield AI Engine",
+    summary: "The models powering StegoShield's detection.",
+    content: "Our proprietary detection system combines multiple AI architectures to achieve industry-leading accuracy. The CNN analyzes spatial patterns, the RNN processes sequential data in files, and the EfficientNet-LSTM hybrid model provides efficient large-scale scanning.",
+    date: "April 11, 2025",
+    icon: <Code2 className="w-6 h-6 text-[#0e4f63] dark:text-gray-400" />,
+    readTime: "10 min read",
+    category: "Technology",
+    author: "StegoShield Team",
+    authorRole: "Engineering"
+  },
+  {
+    id: 11,
+    title: "Optimizing Detection Performance",
+    summary: "How we achieve real-time steganalysis at scale.",
+    content: "Processing millions of files per day requires careful optimization. This technical article explains our architecture decisions, including distributed computing, model quantization, and efficient feature extraction that make large-scale steganalysis possible.",
+    date: "April 12, 2025",
+    icon: <Network className="w-6 h-6 text-[#0e4f63] dark:text-gray-400" />,
+    readTime: "11 min read",
+    category: "Technology",
+    author: "Sarah Kim",
+    authorRole: "Systems Architect"
+  },
+
+  // Analysis
+  {
+    id: 12,
+    title: "Manual vs. Automated Detection",
+    summary: "Comparing human analysis and AI-driven techniques.",
+    content: "While AI has transformed steganalysis, human expertise remains valuable. This article compares both approaches across several dimensions: detection rates, false positives, resource requirements, and adaptability.",
+    date: "April 13, 2025",
+    icon: <FileSearch className="w-6 h-6 text-[#0e4f63] dark:text-gray-400" />,
+    readTime: "9 min read",
+    category: "Analysis",
+    author: "Dr. Alan Turing",
+    authorRole: "Senior Researcher"
+  },
+  {
+    id: 13,
+    title: "The Future of Steganalysis",
+    summary: "Emerging trends and future directions in detection.",
+    content: "As steganography techniques evolve, so must detection methods. This forward-looking article examines promising research directions including quantum steganalysis, adversarial learning defenses, and explainable AI for forensic applications.",
+    date: "April 14, 2025",
+    icon: <FileCode className="w-6 h-6 text-[#0e4f63] dark:text-gray-400" />,
+    readTime: "8 min read",
+    category: "Analysis",
+    author: "Dr. Priya Singh",
+    authorRole: "Research Director"
+  }
 ];
+
+const categories = ["All", ...new Set(blogsData.map(blog => blog.category))];
 
 const Blog = () => {
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [filteredBlogs, setFilteredBlogs] = useState(blogsData);
+  const [selectedBlog, setSelectedBlog] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (!localStorage.getItem("user")) {
@@ -69,55 +211,136 @@ const Blog = () => {
     }
   }, [isLoggedIn]);
 
+  useEffect(() => {
+    if (selectedCategory === "All") {
+      setFilteredBlogs(blogsData);
+    } else {
+      setFilteredBlogs(blogsData.filter(blog => blog.category === selectedCategory));
+    }
+  }, [selectedCategory]);
+
+  const handleReadMore = (blog) => {
+    setSelectedBlog(blog);
+    setIsModalOpen(true);
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedBlog(null);
+    document.body.style.overflow = 'auto';
+  };
+
   return (
     <div className="min-h-screen bg-blue-50 dark:bg-gray-900 ">
       <Header />
       <motion.div
-        className="py-20 px-6"
+        className="py-10 px-4 sm:px-6"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="max-w-6xl mx-auto">
-          <motion.h2
+        <div className="max-w-7xl mx-auto">
+          <motion.div
             initial={{ opacity: 0, y: -30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-5xl font-extrabold text-center bg-gradient-to-r from-[#113742] to-[#8fbcc4] bg-clip-text text-transparent mb-16 "
+            className="text-center mb-16"
           >
-            StegoShield Blog
-          </motion.h2>
+            <span className="inline-block px-3 py-1 text-xs font-semibold text-[#0e4f63] dark:text-gray-400 bg-indigo-100 dark:bg-indigo-900/30 rounded-full mb-4">
+              Latest Articles
+            </span>
+            <h2 className="text-5xl font-extrabold bg-gradient-to-r from-[#113742] to-[#8fbcc4] bg-clip-text text-transparent mb-4">
+              StegoShield Blog
+            </h2>
+            <p className="max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
+              Insights, research, and updates on steganography detection and
+              cybersecurity trends.
+            </p>
+          </motion.div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10">
-            {blogs.map((blog, i) => (
+          <div className="flex mb-8 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex space-x-2">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`px-4 py-2 text-sm font-medium rounded-full whitespace-nowrap transition-colors ${
+                    category === selectedCategory
+                      ? "bg-[#0e4f63] text-white"
+                      : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredBlogs.map((blog) => (
               <motion.div
-                key={i}
+                key={blog.id}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                whileHover={{ scale: 1.02 }}
-                className="group relative flex flex-col overflow-hidden rounded-2xl shadow-xl bg-blue-100 dark:bg-zinc-900 border border-blue-200 dark:border-zinc-700 transition-all duration-300 "
+                transition={{ duration: 0.3 }}
+                whileHover={{ y: -5 }}
+                className="group relative flex flex-col overflow-hidden rounded-xl shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-xl dark:hover:shadow-2xl dark:hover:bg-gray-700"
               >
-                <div className="w-1.5 bg-gradient-to-b via-purple-500 from-blue-900 group-hover:scale-y-110 transition-transform duration-300" />
-                <div className="p-6 flex flex-col justify-between h-full dark:bg-gray-800">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 bg-blue-100 dark:bg-indigo-500/20 rounded-full shadow-inner ">
-                      {blog.icon}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative p-6 flex flex-col justify-between h-full">
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs font-semibold px-2 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-[#0e4f63] dark:text-gray-400 rounded-full">
+                        {blog.category}
+                      </span>
+                      <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                        <Clock className="w-3 h-3 mr-1" />
+                        {blog.readTime}
+                      </div>
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white leading-tight">
-                      {blog.title}
-                    </h3>
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-3 bg-indigo-100 dark:bg-indigo-500/20 rounded-full shadow-inner">
+                        {blog.icon}
+                      </div>
+                      <h3 className="text-lg font-bold text-gray-800 dark:text-white leading-tight">
+                        {blog.title}
+                      </h3>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                      {blog.summary}
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                    {blog.date}
-                  </p>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
-                    {blog.summary}
-                  </p>
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      {blog.date}
+                    </span>
+                    <button 
+                      onClick={() => handleReadMore(blog)}
+                      className="flex items-center text-sm font-medium text-[#0e4f63] dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300 transition-colors"
+                    >
+                      Read more
+                      <ChevronRight className="w-4 h-4 ml-1" />
+                    </button>
+                  </div>
                 </div>
               </motion.div>
             ))}
           </div>
+
+          {filteredBlogs.length === 0 && (
+            <div className="text-center py-12">
+              <h3 className="text-xl font-medium text-gray-600 dark:text-gray-400">
+                No articles found in this category
+              </h3>
+              <button
+                onClick={() => setSelectedCategory("All")}
+                className="mt-4 text-indigo-600 dark:text-indigo-400 hover:underline"
+              >
+                View all articles
+              </button>
+            </div>
+          )}
 
           <motion.div
             className="mt-20 text-center"
@@ -125,17 +348,36 @@ const Blog = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.8 }}
           >
+            <div className="mb-8">
+              <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
+                Want to learn more about our technology?
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                Discover how StegoShield's advanced detection algorithms work to
+                protect your digital assets.
+              </p>
+            </div>
             <motion.button
-              whileHover={{ scale: 1.06 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => navigate("/how-it-works")}
-              className="bg-[#113742] dark:bg-gray-800 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:bg-gray-900 transition-all duration-300"
+              className="inline-flex items-center bg-gradient-to-r from-[#113742] to-[#34737e] dark:from-gray-800 dark:to-gray-700 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group"
             >
               Learn How It Works
+              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
             </motion.button>
           </motion.div>
         </div>
       </motion.div>
+
+      {/* Blog Detail Modal */}
+      <AnimatePresence>
+        {isModalOpen && selectedBlog && (
+          <BlogDetail blog={selectedBlog} onClose={closeModal} />
+        )}
+      </AnimatePresence>
+
+      <Footer />
     </div>
   );
 };

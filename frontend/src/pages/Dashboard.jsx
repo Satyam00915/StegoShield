@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import Header from "../components/Header";
+import Footer from "../components/Footer";
 import { useAuth } from "../context/AuthContext";
 import { FileText, ShieldCheck, ShieldX, X, Download, Trash2, Filter, Calendar, BarChart2, Activity } from "lucide-react";
 import { Line, Pie, Bar, Doughnut } from "react-chartjs-2";
@@ -218,18 +219,18 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-blue-50 dark:bg-gray-900 px-4 pb-10">
+    <div className="min-h-screen bg-blue-50 dark:bg-gray-900 px-4 pb-0">
       <Toaster position="top-right" />
       <Header />
 
-      <div className="max-w-7xl mx-auto space-y-6 mt-4">
+      <div className="max-w-7xl mx-auto space-y-6 mt-4 ">
         {/* Welcome Header */}
         <div className="flex justify-between items-center">
         <motion.h2
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-[#113742] to-[#8fbcc4] bg-clip-text text-transparent dark:from-blue-600 dark:to-blue-500"
+          className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-[#113742] to-[#8fbcc4] bg-clip-text text-transparent dark:from-[#113742] dark:to-[#8fbcc4]"
         >
           <span className="inline-flex items-center">
             <Typewriter
@@ -238,7 +239,7 @@ const Dashboard = () => {
               cursor={false}
               loop={false}
             />
-            <span className="ml-1 w-2 h-6 bg-[#8fbcc4] dark:bg-blue-500 animate-blink rounded-sm" />
+            <span className="ml-1 w-2 h-6 bg-[#8fbcc4] dark:bg-[#8fbcc4] animate-blink rounded-sm" />
           </span>
         </motion.h2>
 
@@ -355,14 +356,11 @@ const Dashboard = () => {
               <div className="relative">
                 <input
                   type="date"
-                  className="pl-3 pr-8 py-2 rounded-lg border bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  className="pl-3 pr-2 py-2 rounded-lg border bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
                   value={selectedDate || ""}
                   onChange={(e) => setSelectedDate(e.target.value)}
                   max={new Date().toISOString().split('T')[0]}
                 />
-                <div className="absolute right-2 top-2.5 pointer-events-none">
-                  <Calendar size={18} className="text-gray-400" />
-                </div>
               </div>
 
 
@@ -741,7 +739,9 @@ const Dashboard = () => {
             </div>
           </motion.div>
         </div>
+        
       )}
+      <Footer />
     </div>
   );
 };

@@ -6,6 +6,7 @@ import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useDropzone } from "react-dropzone";
+import Footer from "../components/Footer";
 
 const FileUploader = () => {
   // Existing state declarations (unchanged)
@@ -373,7 +374,7 @@ const FileUploader = () => {
             animate={{ opacity: 1, y: 0 }}
             className="pt-8 pb-12 text-center"
           >
-            <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-[#113742] to-[#8fbcc4] bg-clip-text text-transparent dark:text-white mb-3">
+            <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-[#113742] to-[#8fbcc4] bg-clip-text text-transparent dark:from-[#113742] dark:to-[#8fbcc4] mb-2 p-2">
               StegoShield Analyzer
             </h1>
             <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
@@ -402,7 +403,7 @@ const FileUploader = () => {
           </div>
 
           {/* Main Analysis Sections */}
-          <div className="flex flex-col md:flex-row gap-6 mb-12">
+          <div className="flex flex-col md:flex-row items-start gap-6 mb-12">
             {renderSection(
               "Image",
               imageFile,
@@ -462,28 +463,45 @@ const FileUploader = () => {
                 </p>
               </div>
               
-              <div className="relative w-full md:w-64">
-                <input
-                  type="text"
-                  placeholder="Search history..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 border rounded-lg w-full dark:bg-gray-800 dark:border-gray-700"
-                />
-                <svg
-                  className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search history..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 pr-4 py-2 border rounded-lg w-full dark:bg-gray-800 dark:border-gray-700"
                   />
-                </svg>
+                  <svg
+                    className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                </div>
+                
+                <button
+                  onClick={() => {
+                    if (window.confirm("Are you sure you want to clear all history?")) {
+                      localStorage.removeItem("uploadHistory");
+                      setHistory([]);
+                      setSearchTerm("");
+                      toast.success("History cleared");
+                    }
+                  }}
+                  className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition"
+                  disabled={history.length === 0}
+                >
+                  Clear History
+                </button>
               </div>
             </div>
 
@@ -502,7 +520,7 @@ const FileUploader = () => {
                     className={`cursor-pointer rounded-lg p-4 shadow-md border transition transform hover:scale-[1.01] ${
                       item.result === "Malicious"
                         ? "bg-red-50 dark:bg-red-900/30 border-red-300 dark:border-red-700 hover:shadow-red-300 dark:hover:shadow-red-900/50"
-                        : "bg-green-50 dark:bg-green-900/30 border-green-300 dark:border-green-700 hover:shadow-green-100 dark:hover:shadow-green-900/50"
+                        : "bg-green-50 dark:bg-green-900/30 border-green-300 dark:border-green-700 hover:shadow-green-300 dark:hover:shadow-green-900/50"
                     }`}
                   >
                     <div className="flex justify-between items-start">
@@ -581,11 +599,11 @@ const FileUploader = () => {
               <div className="space-y-4 text-sm">
                 <div className="flex justify-between border-b pb-2">
                   <span className="text-gray-500 dark:text-gray-400">File Name:</span>
-                  <span className="font-medium">{selectedHistoryItem.name}</span>
+                  <span className="font-medium dark:text-gray-500">{selectedHistoryItem.name}</span>
                 </div>
                 <div className="flex justify-between border-b pb-2">
                   <span className="text-gray-500 dark:text-gray-400">Result:</span>
-                  <span className={`font-medium ${
+                  <span className={`font-medium  ${
                     selectedHistoryItem.result === "Malicious" 
                       ? "text-red-600 dark:text-red-400" 
                       : "text-green-600 dark:text-green-400"
@@ -595,13 +613,13 @@ const FileUploader = () => {
                 </div>
                 <div className="flex justify-between border-b pb-2">
                   <span className="text-gray-500 dark:text-gray-400">Confidence:</span>
-                  <span className="font-medium">
+                  <span className="font-medium dark:text-gray-500">
                     {(selectedHistoryItem.confidence * 100).toFixed(2)}%
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500 dark:text-gray-400">Scanned On:</span>
-                  <span className="font-medium">
+                  <span className="font-medium dark:text-gray-500">
                     {selectedHistoryItem.date}
                   </span>
                 </div>
@@ -688,6 +706,7 @@ const FileUploader = () => {
           </div>
         )}
       </div>
+      <Footer />
     </>
   );
 };
