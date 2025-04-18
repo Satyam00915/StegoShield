@@ -73,7 +73,7 @@ const Footer = () => {
 
             {/* Bottom note */}
             <div className="text-center mt-6 text-sm text-[#0e4f63] dark:text-gray-300">
-                © {new Date().getFullYear()} <span className="text-[#0e4f63] dark:text-gray-300font-medium">StegoShield</span>. All rights reserved.
+                © {new Date().getFullYear()} <span className="text-[#0e4f63] dark:text-gray-300 font-medium">StegoShield</span>. All rights reserved.
             </div>
         </footer>
     );
