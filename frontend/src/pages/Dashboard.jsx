@@ -340,7 +340,7 @@ const Dashboard = () => {
             <div className="flex gap-2">
               <div className="relative">
                 <select
-                  className="appearance-none pl-3 pr-8 py-2 rounded-lg border bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  className="appearance-none pl-3 pr-8 py-2 rounded-lg dark:text-gray-400 border bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
                   value={activeFilter}
                   onChange={(e) => setActiveFilter(e.target.value)}
                 >
@@ -356,7 +356,7 @@ const Dashboard = () => {
               <div className="relative">
                 <input
                   type="date"
-                  className="pl-3 pr-2 py-2 rounded-lg border bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  className="pl-3 pr-2 py-2 dark:text-gray-400 rounded-lg border bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
                   value={selectedDate || ""}
                   onChange={(e) => setSelectedDate(e.target.value)}
                   max={new Date().toISOString().split('T')[0]}
@@ -366,7 +366,7 @@ const Dashboard = () => {
 
               <button
                 onClick={clearFilters}
-                className="px-3 py-2 rounded-lg border bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                className="px-3 py-2 rounded-lg border bg-gray-50 dark:bg-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
               >
                 Clear
               </button>

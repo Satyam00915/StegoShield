@@ -3,7 +3,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { toast } from "react-hot-toast";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { auth, provider, signInWithPopup } from "../firebase"; // Adjust path if needed
+import { auth, provider, signInWithPopup } from "../firebase";
 import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
@@ -16,8 +16,8 @@ const Signup = () => {
 
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-    const navigate = useNavigate(); // ✅ Added for navigation
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setFormData({
@@ -56,6 +56,7 @@ const Signup = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validateForm()) return;
+        setLoading(true);
 
         try {
             const res = await fetch("http://localhost:5000/signup", {
@@ -74,13 +75,15 @@ const Signup = () => {
 
             if (res.ok) {
                 toast.success("Signup successful! Please log in.");
-                navigate("/login"); // ✅ Redirect to login
+                navigate("/login");
             } else {
                 toast.error(data.error || "Signup failed.");
             }
         } catch (err) {
             toast.error("Server error.");
             console.error(err);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -118,18 +121,26 @@ const Signup = () => {
     };
 
     return (
-        <div>
+        <div className="min-h-screen flex flex-col">
             <Header />
-            <div className="min-h-screen flex items-center justify-center bg-blue-50 dark:bg-gray-900 px-4 relative">
-                <div className="w-full max-w-md bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-2xl">
-                    <div className="text-center mb-6">
-                        <h2 className="text-4xl font-extrabold text-gray-800 dark:text-gray-300 mb-2">Shield Up</h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Sign up to start protecting your files with AI</p>
+            <div className="flex-grow bg-blue-50 dark:bg-gray-900 flex items-center justify-center px-4 py-12 relative">
+                <div className="w-full max-w-md bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-2xl
+                               lg:max-w-xl lg:p-12 2xl:max-w-2xl 2xl:p-16">
+                    <div className="text-center mb-6 lg:mb-8 2xl:mb-10">
+                        <h2 className="text-4xl font-extrabold text-gray-800 dark:text-gray-300 mb-2
+                                      lg:text-5xl 2xl:text-6xl">
+                            Shield Up
+                        </h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2
+                                     lg:text-base 2xl:text-lg">
+                            Sign up to start protecting your files with AI
+                        </p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-5">
+                    <form onSubmit={handleSubmit} className="space-y-5 lg:space-y-6 2xl:space-y-8">
                         <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+                            <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1
+                                                         lg:text-base 2xl:text-lg">
                                 Full Name
                             </label>
                             <input
@@ -137,13 +148,15 @@ const Signup = () => {
                                 name="name"
                                 id="name"
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                className="w-full px-4 py-3 border border-gray-300 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none
+                                          lg:py-4 lg:text-base 2xl:py-5 2xl:text-lg"
                                 placeholder="John Doe"
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1
+                                                         lg:text-base 2xl:text-lg">
                                 Email address
                             </label>
                             <input
@@ -151,13 +164,15 @@ const Signup = () => {
                                 name="email"
                                 id="email"
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                className="w-full px-4 py-3 border border-gray-300 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none
+                                          lg:py-4 lg:text-base 2xl:py-5 2xl:text-lg"
                                 placeholder="you@example.com"
                             />
                         </div>
 
                         <div className="relative">
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+                            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1
+                                                             lg:text-base 2xl:text-lg">
                                 Password
                             </label>
                             <input
@@ -165,20 +180,24 @@ const Signup = () => {
                                 name="password"
                                 id="password"
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 pr-12 border border-gray-300 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                className="w-full px-4 py-3 pr-12 border border-gray-300 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none
+                                          lg:py-4 lg:text-base 2xl:py-5 2xl:text-lg"
                                 placeholder="••••••••"
                             />
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute top-[38px] right-3 pr-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                                className="absolute top-[38px] right-3 pr-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300
+                                          lg:top-[42px] lg:right-4 2xl:top-[50px] 2xl:right-5"
                             >
-                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                {showPassword ? <EyeOff size={24} className="lg:w-6 lg:h-6 2xl:w-7 2xl:h-7" /> : 
+                                               <Eye size={24} className="lg:w-6 lg:h-6 2xl:w-7 2xl:h-7" />}
                             </button>
                         </div>
 
                         <div className="relative">
-                            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+                            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1
+                                                                   lg:text-base 2xl:text-lg">
                                 Confirm Password
                             </label>
                             <input
@@ -186,45 +205,51 @@ const Signup = () => {
                                 name="confirmPassword"
                                 id="confirmPassword"
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 pr-12 border border-gray-300 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                className="w-full px-4 py-3 pr-12 border border-gray-300 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none
+                                          lg:py-4 lg:text-base 2xl:py-5 2xl:text-lg"
                                 placeholder="••••••••"
                             />
                             <button
                                 type="button"
                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                className="absolute top-[38px] right-3 pr-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                                className="absolute top-[38px] right-3 pr-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300
+                                          lg:top-[42px] lg:right-4 2xl:top-[50px] 2xl:right-5"
                             >
-                                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                {showConfirmPassword ? <EyeOff size={24} className="lg:w-6 lg:h-6 2xl:w-7 2xl:h-7" /> : 
+                                                      <Eye size={24} className="lg:w-6 lg:h-6 2xl:w-7 2xl:h-7" />}
                             </button>
                         </div>
 
                         <button
                             type="submit"
-                            className="w-full py-3 text-white bg-[#1f2937] hover:bg-[#111827] dark:bg-[#405c64] dark:hover:bg-[#587d88] rounded-full font-semibold transition-all duration-200 ease-in-out"
+                            disabled={loading}
+                            className="w-full py-3 text-white bg-[#1f2937] hover:bg-[#111827] dark:bg-[#405c64] dark:hover:bg-[#587d88] rounded-full font-semibold transition-all duration-200 ease-in-out
+                                     lg:py-4 lg:text-lg 2xl:py-5 2xl:text-xl"
                         >
-                            Sign Up
+                            {loading ? "Creating account..." : "Sign Up"}
                         </button>
 
-                        <div className="flex items-center justify-center gap-2 my-5">
+                        <div className="flex items-center justify-center gap-2 my-5 lg:my-6 2xl:my-8">
                             <div className="h-px bg-gray-300 flex-1"></div>
-                            <span className="text-sm text-gray-500 dark:text-gray-400">or</span>
+                            <span className="text-sm text-gray-500 dark:text-gray-400 lg:text-base 2xl:text-lg">or</span>
                             <div className="h-px bg-gray-300 flex-1"></div>
                         </div>
 
                         <button
                             type="button"
                             onClick={handleGoogleSignup}
-                            className="w-full flex items-center justify-center gap-3 py-3 text-white bg-[#1f2937] hover:bg-[#111827] dark:bg-[#405c64] dark:hover:bg-[#587d88] rounded-full font-semibold transition-all duration-200 ease-in-out"
+                            className="w-full flex items-center justify-center gap-3 py-3 text-white bg-[#1f2937] hover:bg-[#111827] dark:bg-[#405c64] dark:hover:bg-[#587d88] rounded-full font-semibold transition-all duration-200 ease-in-out
+                                     lg:py-4 lg:text-lg 2xl:py-5 2xl:text-xl"
                         >
                             <img
                                 src="https://www.svgrepo.com/show/475656/google-color.svg"
                                 alt="Google"
-                                className="w-5 h-5"
+                                className="w-5 h-5 lg:w-6 lg:h-6 2xl:w-7 2xl:h-7"
                             />
                             Sign up with Google
                         </button>
 
-                        <p className="text-sm text-center text-gray-600 dark:text-gray-300 mt-3">
+                        <p className="text-sm text-center text-gray-600 dark:text-gray-300 mt-3 lg:text-base lg:mt-4 2xl:text-lg 2xl:mt-5">
                             Already have an account?{" "}
                             <a href="/login" className="text-purple-600 dark:text-[#84b7c7] hover:underline font-medium">
                                 Log in
