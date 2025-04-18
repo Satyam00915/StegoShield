@@ -46,6 +46,11 @@ def admin_required(f):
 app = Flask(__name__, static_folder="../frontend/dist", static_url_path="/")
 CORS(app, supports_credentials=True)
 
+if __name__ == "__main__":
+    import os
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
+
 app.secret_key = "your-secret-key"  # Replace with a strong secret key
 
 cred = credentials.Certificate("backend/firebase_config.json")
