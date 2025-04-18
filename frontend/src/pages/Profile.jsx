@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Pencil, Eye, EyeOff, Check, X, ChevronDown } from "lucide-react";
 import Header from "../components/Header";
+import Footer from "../components/Footer";
 import { useAuth } from "../context/AuthContext";
 
 const getPasswordStrength = (password) => {
@@ -332,6 +333,7 @@ const Profile = () => {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

@@ -5,7 +5,7 @@ import { Shield, Code2, GitBranch, Database, Server, Globe, Rocket } from 'lucid
 const About = () => {
     return (
         <section className="bg-blue-50 dark:bg-gray-900 py-16 px-6 sm:px-12 md:px-24 text-center" id="about">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-4xl 2xl:max-w-[1800px] mx-auto">
                 <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 dark:bg-gray-800 text-[#0e4f63] dark:text-gray-400 mb-4">
                     ABOUT STEGOSHIELD
                 </div>

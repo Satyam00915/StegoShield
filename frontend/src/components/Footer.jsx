@@ -4,7 +4,7 @@ import { Mail, Linkedin, Github } from "lucide-react";
 const Footer = () => {
     return (
         <footer className="bg-blue-50 dark:bg-gray-900 text-[#0e4f63] dark:text-gray-300 px-10 py-10">
-            <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 border-b border-gray-700 pb-8 my-20">
+            <div className="max-w-7xl 2xl:max-w-[1800px] mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 border-b border-gray-700 pb-8 my-20">
                 {/* Logo + Tagline */}
                 <div>
                     <h2 className="text-2xl font-bold text-[#0e4f63] dark:text-gray-300 mb-2">StegoShield</h2>

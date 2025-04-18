@@ -22,7 +22,7 @@ const HeroSection = () => {
           <div className="w-full max-w-xl 2xl:max-w-2xl space-y-6">
             <a
               href="/login"
-              className="inline-flex gap-x-2 items-center text-sm font-medium border border-indigo-200 px-3 py-1.5 dark:text-gray-400 rounded-full hover:bg-white transition hover:shadow-md group"
+              className="inline-flex gap-x-2 items-center text-sm font-medium border border-indigo-200 px-3 py-1.5 dark:text-gray-400 rounded-full hover:bg-white dark:hover:bg-gray-800 transition hover:shadow-md group"
             >
               AI Powered Steganography Detection
               <svg 
@@ -115,18 +115,18 @@ const HeroSection = () => {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm transition-opacity duration-300">
           <div 
-            className="bg-white rounded-xl max-w-2xl 2xl:max-w-4xl w-full p-6 md:p-8 max-h-[90vh] overflow-y-auto shadow-2xl transform transition-all duration-300 scale-95 hover:scale-100"
+            className="bg-gray-100 dark:bg-gray-800 rounded-xl max-w-2xl 2xl:max-w-4xl w-full p-6 md:p-8 max-h-[90vh] overflow-y-auto shadow-2xl transform transition-all duration-300 scale-95 hover:scale-100"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-start mb-6">
               <div>
-                <h2 className="text-2xl md:text-3xl 2xl:text-4xl font-bold text-gray-800 flex items-center gap-2">
-                  <svg className="w-6 h-6 2xl:w-8 2xl:h-8 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                <h2 className="text-2xl md:text-3xl 2xl:text-4xl font-bold text-gray-800 dark:text-[#e2e7e9d7] flex items-center gap-2">
+                  <svg className="w-6 h-6 2xl:w-8 2xl:h-8 text-[#0e4f63] dark:text-[#b2d6e0a4]" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z" clipRule="evenodd" />
                   </svg>
                   About StegoShield
                 </h2>
-                <p className="text-indigo-500 text-sm 2xl:text-base mt-1">Advanced Steganography Detection</p>
+                <p className="text-[#0e4f63] dark:text-[#b2d6e0a4] text-sm 2xl:text-base mt-1">Advanced Steganography Detection</p>
               </div>
               <button 
                 onClick={toggleModal}
@@ -139,8 +139,8 @@ const HeroSection = () => {
               </button>
             </div>
             
-            <div className="space-y-6 text-gray-600 2xl:text-lg">
-              <div className="bg-indigo-50 p-4 rounded-lg border-l-4 border-indigo-500">
+            <div className="space-y-6 text-gray-600 dark:text-gray-100 2xl:text-lg">
+              <div className="bg-indigo-50 dark:bg-gray-700 p-4 rounded-lg border-l-4 border-[#0e4f63] dark:border-[#b2d6e0a4]">
                 <p className="font-medium">
                   StegoShield is an advanced AI-powered platform designed to detect hidden payloads and steganographic content in digital media files. Our technology helps organizations protect against data leaks and cyber threats hidden within seemingly innocent files.
                 </p>
@@ -148,8 +148,8 @@ const HeroSection = () => {
               
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="font-semibold text-gray-800 flex items-center gap-2 mb-3">
-                    <svg className="w-5 h-5 2xl:w-6 2xl:h-6 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
+                  <h3 className="font-semibold text-gray-800 dark:text-gray-50 flex items-center gap-2 mb-3">
+                    <svg className="w-5 h-5 2xl:w-6 2xl:h-6 text-[#0e4f63] dark:text-[#b2d6e0a4]" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" />
                     </svg>
                     Key Features
@@ -173,17 +173,17 @@ const HeroSection = () => {
                 </div>
                 
                 <div>
-                  <h3 className="font-semibold text-gray-800 flex items-center gap-2 mb-3">
-                    <svg className="w-5 h-5 2xl:w-6 2xl:h-6 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
+                  <h3 className="font-semibold text-gray-800 dark:text-gray-50 flex items-center gap-2 mb-3">
+                    <svg className="w-5 h-5 2xl:w-6 2xl:h-6 text-[#0e4f63] dark:text-[#b2d6e0a4]" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
                     </svg>
                     How It Works
                   </h3>
-                  <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                     <p className="mb-3">
                       Our proprietary algorithms use deep learning to analyze the statistical properties of files, identifying anomalies that indicate hidden data.
                     </p>
-                    <div className="flex items-center gap-2 text-sm 2xl:text-base text-indigo-600">
+                    <div className="flex items-center gap-2 text-sm 2xl:text-base text-[#0e4f63] dark:text-[#b2d6e0a4]">
                       <svg className="w-4 h-4 2xl:w-5 2xl:h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd" />
                       </svg>
@@ -197,7 +197,7 @@ const HeroSection = () => {
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <button
                 onClick={toggleModal}
-                className="px-6 py-2 2xl:px-8 2xl:py-3 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition flex-1 flex items-center justify-center gap-2 text-sm 2xl:text-base"
+                className="px-6 py-2 2xl:px-8 2xl:py-3 bg-[#0e4f63] dark:bg-[#527f8ba4] text-white rounded-full hover:bg-[#305966] transition flex-1 flex items-center justify-center gap-2 text-sm 2xl:text-base"
               >
                 <svg className="w-5 h-5 2xl:w-6 2xl:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -206,7 +206,7 @@ const HeroSection = () => {
               </button>
               <a
                 href="/signup"
-                className="px-6 py-2 2xl:px-8 2xl:py-3 border border-indigo-600 text-indigo-600 rounded-full hover:bg-indigo-50 transition flex-1 text-center text-sm 2xl:text-base"
+                className="px-6 py-2 2xl:px-8 2xl:py-3 border border-[#0e4f63] dark:border-[#527f8ba4] text-[#0e4f63] dark:text-[#aee6f5a4] rounded-full hover:bg-indigo-50 dark:hover:bg-gray-700 transition flex-1 text-center text-sm 2xl:text-base"
               >
                 Try it now
               </a>

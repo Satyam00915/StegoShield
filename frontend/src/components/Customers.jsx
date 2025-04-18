@@ -28,7 +28,7 @@ const testimonials = [
 const Customers = () => {
   return (
     <section className="bg-blue-50 dark:bg-gray-900 py-16 px-4" id="customers">
-      <div className="max-w-screen-xl mx-auto text-center">
+      <div className="max-w-screen-xl 2xl:max-w-[1800px] mx-auto text-center">
         <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 dark:bg-gray-800 text-[#0e4f63] dark:text-gray-400 mb-4">
           TESTIMONIALS
         </div>

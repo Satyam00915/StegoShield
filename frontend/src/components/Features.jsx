@@ -44,7 +44,7 @@ const features = [
 const Feature = () => {
   return (
     <section className="py-20 bg-blue-50 dark:bg-gray-900" id="features">
-      <div className="max-w-screen-xl mx-auto px-4 text-center">
+      <div className="max-w-screen-xl 2xl:max-w-[1800px] mx-auto px-4 text-center">
         <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 dark:bg-gray-800 text-[#0e4f63] dark:text-gray-400 mb-4">
           <Zap className="w-4 h-4 mr-1" /> POWERFUL FEATURES
         </div>

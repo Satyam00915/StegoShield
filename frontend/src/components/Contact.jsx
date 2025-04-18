@@ -4,8 +4,8 @@ import { Mail, Phone, MapPin, Send } from 'lucide-react';
 const Contact = () => {
     return (
         <section id="contact" className="pt-20 pb-10 px-6 md:px-20 bg-blue-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
-            <div className="max-w-6xl mx-auto">
-                <div className="text-center mb-12">
+            <div className="max-w-6xl 2xl:max-w-[1800px] mx-auto">
+                <div className="text-center mb-20">
                     <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 dark:bg-gray-800 text-[#0e4f63] dark:text-gray-400 mb-4">
                         GET IN TOUCH
                     </div>

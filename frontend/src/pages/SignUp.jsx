@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "react-hot-toast";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 import { auth, provider, signInWithPopup } from "../firebase"; // Adjust path if needed
 import { useNavigate } from "react-router-dom";
 
@@ -116,129 +118,122 @@ const Signup = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 relative">
-            <a href="/" className="absolute top-6 left-6 flex items-center text-gray-600 hover:text-gray-800">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                    <path
-                        fillRule="evenodd"
-                        d="M7.707 14.707a1 1 0 01-1.414 0L2.586 11H17a1 1 0 110 2H2.586l3.707 3.707a1 1 0 01-1.414 1.414l-5.121-5.12a1 1 0 010-1.415l5.121-5.12a1 1 0 111.414 1.414L2.586 9H17a3 3 0 110 6H2.586l3.707 3.707a1 1 0 010 1.414z"
-                        clipRule="evenodd"
-                    />
-                </svg>
-                Home
-            </a>
+        <div>
+            <Header />
+            <div className="min-h-screen flex items-center justify-center bg-blue-50 dark:bg-gray-900 px-4 relative">
+                <div className="w-full max-w-md bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-2xl">
+                    <div className="text-center mb-6">
+                        <h2 className="text-4xl font-extrabold text-gray-800 dark:text-gray-300 mb-2">Shield Up</h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Sign up to start protecting your files with AI</p>
+                    </div>
 
-            <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl">
-                <div className="text-center mb-6">
-                    <h2 className="text-4xl font-extrabold text-gray-800 mb-2">Shield Up</h2>
-                    <p className="text-sm text-gray-500 mt-2">Sign up to start protecting your files with AI</p>
+                    <form onSubmit={handleSubmit} className="space-y-5">
+                        <div>
+                            <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+                                Full Name
+                            </label>
+                            <input
+                                type="text"
+                                name="name"
+                                id="name"
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 border border-gray-300 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                placeholder="John Doe"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+                                Email address
+                            </label>
+                            <input
+                                type="email"
+                                name="email"
+                                id="email"
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 border border-gray-300 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                placeholder="you@example.com"
+                            />
+                        </div>
+
+                        <div className="relative">
+                            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+                                Password
+                            </label>
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                name="password"
+                                id="password"
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 pr-12 border border-gray-300 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                placeholder="••••••••"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute top-[38px] right-3 pr-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                            >
+                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </button>
+                        </div>
+
+                        <div className="relative">
+                            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+                                Confirm Password
+                            </label>
+                            <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                name="confirmPassword"
+                                id="confirmPassword"
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 pr-12 border border-gray-300 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                placeholder="••••••••"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                className="absolute top-[38px] right-3 pr-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                            >
+                                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </button>
+                        </div>
+
+                        <button
+                            type="submit"
+                            className="w-full py-3 text-white bg-[#1f2937] hover:bg-[#111827] dark:bg-[#405c64] dark:hover:bg-[#587d88] rounded-full font-semibold transition-all duration-200 ease-in-out"
+                        >
+                            Sign Up
+                        </button>
+
+                        <div className="flex items-center justify-center gap-2 my-5">
+                            <div className="h-px bg-gray-300 flex-1"></div>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">or</span>
+                            <div className="h-px bg-gray-300 flex-1"></div>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={handleGoogleSignup}
+                            className="w-full flex items-center justify-center gap-3 py-3 text-white bg-[#1f2937] hover:bg-[#111827] dark:bg-[#405c64] dark:hover:bg-[#587d88] rounded-full font-semibold transition-all duration-200 ease-in-out"
+                        >
+                            <img
+                                src="https://www.svgrepo.com/show/475656/google-color.svg"
+                                alt="Google"
+                                className="w-5 h-5"
+                            />
+                            Sign up with Google
+                        </button>
+
+                        <p className="text-sm text-center text-gray-600 dark:text-gray-300 mt-3">
+                            Already have an account?{" "}
+                            <a href="/login" className="text-purple-600 dark:text-[#84b7c7] hover:underline font-medium">
+                                Log in
+                            </a>
+                        </p>
+                    </form>
                 </div>
-
-                <form onSubmit={handleSubmit} className="space-y-5">
-                    <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                            Full Name
-                        </label>
-                        <input
-                            type="text"
-                            name="name"
-                            id="name"
-                            onChange={handleChange}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                            placeholder="John Doe"
-                        />
-                    </div>
-
-                    <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                            Email address
-                        </label>
-                        <input
-                            type="email"
-                            name="email"
-                            id="email"
-                            onChange={handleChange}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                            placeholder="you@example.com"
-                        />
-                    </div>
-
-                    <div className="relative">
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                            Password
-                        </label>
-                        <input
-                            type={showPassword ? "text" : "password"}
-                            name="password"
-                            id="password"
-                            onChange={handleChange}
-                            className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                            placeholder="••••••••"
-                        />
-                        <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute top-[38px] right-3 pr-1 text-gray-500 hover:text-gray-700"
-                        >
-                            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                        </button>
-                    </div>
-
-                    <div className="relative">
-                        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                            Confirm Password
-                        </label>
-                        <input
-                            type={showConfirmPassword ? "text" : "password"}
-                            name="confirmPassword"
-                            id="confirmPassword"
-                            onChange={handleChange}
-                            className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none"
-                            placeholder="••••••••"
-                        />
-                        <button
-                            type="button"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            className="absolute top-[38px] right-3 pr-1 text-gray-500 hover:text-gray-700"
-                        >
-                            {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                        </button>
-                    </div>
-
-                    <button
-                        type="submit"
-                        className="w-full py-3 text-white bg-[#1f2937] hover:bg-[#111827] rounded-full font-semibold transition-all duration-200 ease-in-out"
-                    >
-                        Sign Up
-                    </button>
-
-                    <div className="flex items-center justify-center gap-2 my-5">
-                        <div className="h-px bg-gray-300 flex-1"></div>
-                        <span className="text-sm text-gray-500">or</span>
-                        <div className="h-px bg-gray-300 flex-1"></div>
-                    </div>
-
-                    <button
-                        type="button"
-                        onClick={handleGoogleSignup}
-                        className="w-full flex items-center justify-center gap-3 py-3 text-white bg-[#1f2937] hover:bg-[#111827] rounded-full font-semibold transition-all duration-200 ease-in-out"
-                    >
-                        <img
-                            src="https://www.svgrepo.com/show/475656/google-color.svg"
-                            alt="Google"
-                            className="w-5 h-5"
-                        />
-                        Sign up with Google
-                    </button>
-
-                    <p className="text-sm text-center text-gray-600 mt-3">
-                        Already have an account?{" "}
-                        <a href="/login" className="text-purple-600 hover:underline font-medium">
-                            Log in
-                        </a>
-                    </p>
-                </form>
             </div>
+            <Footer />
         </div>
     );
 };

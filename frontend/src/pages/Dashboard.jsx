@@ -223,7 +223,7 @@ const Dashboard = () => {
       <Toaster position="top-right" />
       <Header />
 
-      <div className="max-w-7xl mx-auto space-y-6 mt-4 ">
+      <div className="max-w-7xl 2xl:max-w-[1800px] mx-auto space-y-6 mt-4 ">
         {/* Welcome Header */}
         <div className="flex justify-between items-center">
         <motion.h2

@@ -104,7 +104,7 @@ const HowItWorks = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl 2xl:max-w-[1800px] mx-auto">
           {/* Hero Section */}
           <motion.div 
             initial={{ opacity: 0, y: -20 }}
