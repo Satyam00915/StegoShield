@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react'
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import HeroSection from "../components/HeroSection";
 import Feature from "../components/Features";
 import Customers from "../components/Customers";
@@ -8,14 +9,29 @@ import Fotter from "../components/Footer";
 import "../components/landing.css";
 
 const Landing = () => {
+  const location = useLocation();
+
   useEffect(() => {
-    // Smooth scroll for anchor links
+    // Scroll to section if URL contains hash (e.g. #features)
+    if (location.hash) {
+      const targetElement = document.querySelector(location.hash);
+      if (targetElement) {
+        setTimeout(() => {
+          targetElement.scrollIntoView({ behavior: 'smooth' });
+        }, 100); // delay to ensure DOM is fully rendered
+      }
+    }
+  }, [location]);
+
+  useEffect(() => {
+    // Smooth scroll for internal links inside landing page
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function (e) {
         e.preventDefault();
-        document.querySelector(this.getAttribute('href')).scrollIntoView({
-          behavior: 'smooth'
-        });
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
       });
     });
   }, []);
@@ -28,7 +44,7 @@ const Landing = () => {
       <About />
       <Contact />
       <Fotter />
-      
+
       {/* Floating Action Button */}
       <div className="fixed bottom-8 right-8 z-50">
         <a 
@@ -42,7 +58,7 @@ const Landing = () => {
         </a>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Landing
+export default Landing;

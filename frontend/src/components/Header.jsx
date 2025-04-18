@@ -94,9 +94,9 @@ const Header = () => {
       ]
     : [
         { title: "Home", path: "/" },
-        { title: "Features", path: "#features" },
-        { title: "Customers", path: "#customers" },
-        { title: "Contact", path: "#contact" },
+        { title: "Features", path: "/#features" },
+        { title: "Customers", path: "/#customers" },
+        { title: "Contact", path: "/#contact" },
       ];
 
   return (
