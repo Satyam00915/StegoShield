@@ -1,10 +1,9 @@
 import psycopg2
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def get_connection():
-    return psycopg2.connect(
-        dbname="stegoshield",
-        user="postgres",
-        password="root",
-        host="localhost",
-        port="5432"
-    )
+    db_url = ('DATABASE_URL') 
+    return psycopg2.connect(db_url)

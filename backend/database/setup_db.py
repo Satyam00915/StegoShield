@@ -5,14 +5,21 @@ def create_tables():
     conn = get_connection()
     cursor = conn.cursor()
 
-    with open("backend/database/schema.sql", "r") as f:
-        schema = f.read()
-        cursor.execute(schema)  # Use execute only if schema has one statement, otherwise use executescript alternative
+    try:
+        with open("backend/database/schema.sql", "r") as f:
+            schema = f.read()
+            print("🛠️ Executing full schema.sql content")
+            cursor.execute(schema)  # 🚀 Don't split by ';' anymore
 
-    conn.commit()
-    cursor.close()
-    conn.close()
-    print("✅ PostgreSQL Tables created successfully.")
+        conn.commit()
+        print("✅ PostgreSQL Tables created successfully.")
+
+    except Exception as e:
+        print("❌ Error executing schema.sql:", e)
+
+    finally:
+        cursor.close()
+        conn.close()
 
 if __name__ == "__main__":
     create_tables()

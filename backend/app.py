@@ -46,10 +46,6 @@ def admin_required(f):
 app = Flask(__name__, static_folder="../frontend/dist", static_url_path="/")
 CORS(app, supports_credentials=True)
 
-if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
 
 app.secret_key = "your-secret-key"  # Replace with a strong secret key
 
@@ -64,6 +60,7 @@ model = load_model()
 @app.route("/api/test_db", methods=["GET"])
 def test_db():
     try:
+        print("Testing database connection...")
         conn = get_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM uploads LIMIT 5;")
@@ -209,7 +206,9 @@ def signup():
 def google_signup():
     data = request.get_json()
     name = data.get("name")
+    print(name)
     email = data.get("email")
+    print(email)
 
     if not name or not email:
         return jsonify({"error": "Name and email are required"}), 400
@@ -470,6 +469,6 @@ def not_found(e):
 # --------------------- RUN SERVER ---------------------
 
 if __name__ == '__main__':
-    # Production: use waitress or gunicorn
-    # serve(app, host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
     app.run(debug=True)
