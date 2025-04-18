@@ -14,30 +14,30 @@ const features = [
   {
     title: "Image Steganalysis",
     description: "Detect hidden payloads in PNG, JPEG, and BMP files using advanced CNN models.",
-    icon: <Image className="w-8 h-8 text-[#0e4f63] dark:text-indigo-400" />,
+    icon: <Image className="w-8 h-8 text-[#0e4f63] dark:text-[#52818f]" />,
     stats: "99.2% accuracy",
-    color: "bg-indigo-50 dark:bg-indigo-900",
+    color: "bg-indigo-50 dark:bg-[#0e4f63]",
   },
   {
     title: "Audio Steganalysis",
     description: "Analyze spectrograms to identify steganography in MP3 and WAV audio formats.",
-    icon: <Mic className="w-8 h-8 text-[#0e4f63] dark:text-indigo-400" />,
+    icon: <Mic className="w-8 h-8 text-[#0e4f63] dark:text-[#e7b9cc80] " />,
     stats: "98.7% accuracy",
-    color: "bg-pink-50 dark:bg-pink-900",
+    color: "bg-pink-50 dark:bg-[#a0416880] ",
   },
   {
     title: "Video Steganalysis",
     description: "Detect encoded information in MP4 and AVI files with hybrid CNN-LSTM models.",
-    icon: <Video className="w-8 h-8 text-[#0e4f63] dark:text-indigo-400" />,
+    icon: <Video className="w-8 h-8 text-[#0e4f63] dark:text-[#d1bfd880]" />,
     stats: "97.9% accuracy",
-    color: "bg-purple-50 dark:bg-purple-900",
+    color: "bg-purple-50 dark:bg-[#8a52a080]",
   },
   {
     title: "Real-time Detection",
     description: "Get instant analysis reports and payload suspicion score with every upload.",
-    icon: <ShieldCheck className="w-8 h-8 text-[#0e4f63] dark:text-indigo-400" />,
+    icon: <ShieldCheck className="w-8 h-8 text-[#0e4f63] dark:text-[#ced1db80]" />,
     stats: "<1s response",
-    color: "bg-blue-50 dark:bg-blue-900",
+    color: "bg-blue-50 dark:bg-[#4c67af80]",
   },
 ];
 
