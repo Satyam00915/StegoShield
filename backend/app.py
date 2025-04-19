@@ -53,7 +53,7 @@ cred = credentials.Certificate("firebase_config.json")
 firebase_admin.initialize_app(cred)
 
 # Load model once at startup
-model = load_model()
+#model = load_model()
 
 # --------------------- DATABASE TEST ROUTE ---------------------
 
@@ -367,29 +367,29 @@ def detect():
     print(filetype)
 
     try:
-        # 1. Upload file to Cloudinary
+        # 🔹 Upload file to Cloudinary
         cloud_result = cloudinary_upload(file, resource_type="auto")
         print("DEBUG cloud_result:", cloud_result)
         file_url = cloud_result['secure_url']
 
-        # 2. Run prediction on the uploaded file (file.stream reset needed sometimes)
-        file.stream.seek(0)
-        print("hello")
-        result, confidence = predict(file, models=model)
-        print("hello1")
+        # 🔹 Run prediction (lazy-load model only once)
+        file.stream.seek(0)  # Reset stream
+        if not hasattr(app, 'model'):
+            from model import load_model
+            app.model = load_model()  # full model dict (image, audio, video)
+
+        result, confidence = predict(file, models=app.model)
         print("Prediction result:", result, "Confidence:", confidence)
 
-        # 3. Save to database
+        # 🔹 Save results to DB
         conn = get_connection()
         cursor = conn.cursor()
 
-        # Insert into results table (prediction + file URL + user ID)
         cursor.execute("""
             INSERT INTO results (filename, prediction, confidence, user_id, file_url)
             VALUES (%s, %s, %s, %s, %s)
         """, (filename, result, confidence, session['user_id'], file_url))
 
-        # Insert into uploads table (for dashboard/statistics)
         cursor.execute("""
             INSERT INTO uploads (filename, filetype, result, file_url, user_id)
             VALUES (%s, %s, %s, %s, %s)
@@ -407,7 +407,9 @@ def detect():
         })
 
     except Exception as e:
+        print("Error in /upload:", e)
         return jsonify({"error": str(e)}), 500
+
     
 @app.route("/api/history", methods=["GET"])
 def get_user_history():
