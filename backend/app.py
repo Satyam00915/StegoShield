@@ -46,13 +46,14 @@ def admin_required(f):
 app = Flask(__name__, static_folder=os.path.abspath("../frontend/dist"), static_url_path="/")
 app.config.update(
     SESSION_COOKIE_SAMESITE="None",  # allow cross-site cookies
-    SESSION_COOKIE_SECURE=True       # only send over HTTPS
+    SESSION_COOKIE_SECURE=True,       # only send over HTTPS
+    SESSION_COOKIE_DOMAIN=".stego-shield.vercel.app"
 )
 
 
 CORS(app, supports_credentials=True , origins=[
     "http://localhost:5173",            # for dev
-    "https://stego-shield.vercel.app/",
+    "https://stego-shield.vercel.app",
 ])
 
 
@@ -361,6 +362,7 @@ def logout():
 
 @app.route('/upload', methods=['POST', 'GET'])
 def detect():
+    print(session["user_id"])
     if request.method == 'GET':
         return "StegoShield API is running! Use POST request to analyze files."
 
