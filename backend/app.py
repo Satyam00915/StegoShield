@@ -282,20 +282,26 @@ def login():
         user_id, name, hashed_password, avatar = user
 
         if not hashed_password or not isinstance(hashed_password, str):
-            return jsonify({"message": "Invalid Credentials"}), 500  # sanity check
+            return jsonify({"message": "Invalid Credentials"}), 500
 
         if not check_password_hash(hashed_password, password):
             return jsonify({"message": "Incorrect password"}), 401
 
         session['user_id'] = user_id
-        return jsonify({
+
+        # ✅ Create response and manually set CORS headers
+        response = jsonify({
             "user": {
                 "id": user_id,
                 "email": email,
                 "name": name,
-                "avatar": avatar  # now returning avatar too
+                "avatar": avatar
             }
-        }), 200
+        })
+        response.headers["Access-Control-Allow-Origin"] = "https://stego-shield.vercel.app"
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+
+        return response, 200
 
     except Exception as e:
         print(f"Login error: {e}")
