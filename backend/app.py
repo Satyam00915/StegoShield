@@ -47,13 +47,13 @@ app = Flask(__name__, static_folder=os.path.abspath("../frontend/dist"), static_
 app.config.update(
     SESSION_COOKIE_SAMESITE="None",  # allow cross-site cookies
     SESSION_COOKIE_SECURE=True,       # only send over HTTPS
-    SESSION_COOKIE_DOMAIN="stegoshield-3ius.onrender.com"
 )
 
 
-CORS(app, supports_credentials=True , origins=[
-    "http://localhost:5173",            # for dev
+CORS(app, supports_credentials=True, origins=[
+    "http://localhost:5173",
     "https://stego-shield.vercel.app",
+    "https://stegoshield-3ius.onrender.com"
 ])
 
 
