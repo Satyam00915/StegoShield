@@ -9,7 +9,6 @@ import { toast } from "react-hot-toast";
 const Login = () => {
     const [formData, setFormData] = useState({ email: "", password: "" });
     const [showPassword, setShowPassword] = useState(false);
-    const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -33,7 +32,6 @@ const Login = () => {
 
             if (res.ok) {
                 localStorage.setItem("user", JSON.stringify(data.user));
-                setUser(data.user);
                 toast.success("Login successful!");
                 navigate("/dashboard");
             } else {
@@ -61,9 +59,8 @@ const Login = () => {
             const data = await res.json();
 
             if (res.ok) {
-                const name = localStorage.setItem("user", JSON.stringify(data.user));
-                setUser(data.user);
-                toast.success(`Welcome, ${user?.name || "USER"}`);
+                const userobj = localStorage.setItem("user", JSON.stringify(data.user));
+                toast.success(`Welcome, ${userobj?.name || "USER"}`);
                 navigate("/dashboard");
             } else {
                 toast.error(data.message || "Login failed");
