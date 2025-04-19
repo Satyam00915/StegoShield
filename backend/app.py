@@ -398,7 +398,7 @@ def detect():
             from model import load_model
             app.model = load_model()  # full model dict (image, audio, video)
 
-        result, confidence = predict(file, models=app.model)
+        result, confidence = predict(file, model=app.model)
         print("Prediction result:", result, "Confidence:", confidence)
 
         # 🔹 Save results to DB
