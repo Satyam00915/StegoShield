@@ -18,5 +18,5 @@ def generate_config_file():
     }
 
        # Save the data to a JSON file
-    with open("backend/firebase_config.json", "w") as f:
+    with open("firebase_config.json", "w") as f:
         json.dump(firebase_data, f)
