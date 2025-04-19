@@ -258,8 +258,10 @@ def google_signup():
         print(f"Google signup error: {e}")
         return jsonify({"error": str(e)}), 500
 
-@app.route("/login", methods=["POST"])
+@app.route("/login", methods=["POST" , "OPTIONS"])
 def login():
+    if request.method == "OPTIONS":
+        return '', 204 
     data = request.get_json()
     print(data)
     email = data.get("email")
