@@ -380,7 +380,7 @@ const FileUploader = () => {
           'Content-Type': 'application/json',
           'Accept': 'application/json'  // Explicitly ask for JSON
         },
-        body: JSON.stringify({ user_id: user.id + "hello" }),
+        body: JSON.stringify({ user_id: user.id }),
       });
 
       // First check if response is JSON

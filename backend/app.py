@@ -44,10 +44,15 @@ def admin_required(f):
 
 
 app = Flask(__name__, static_folder=os.path.abspath("../frontend/dist"), static_url_path="/")
+app.config.update(
+    SESSION_COOKIE_SAMESITE="None",  # allow cross-site cookies
+    SESSION_COOKIE_SECURE=True       # only send over HTTPS
+)
+
+
 CORS(app, supports_credentials=True , origins=[
     "http://localhost:5173",            # for dev
     "https://stego-shield.vercel.app/",
-    "https://stegoshield-3ius.onrender.com"   # for prod (replace if needed)
 ])
 
 
