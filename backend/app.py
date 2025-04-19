@@ -44,7 +44,11 @@ def admin_required(f):
 
 
 app = Flask(__name__, static_folder=os.path.abspath("../frontend/dist"), static_url_path="/")
-CORS(app, supports_credentials=True, origins=re.compile(r"^(http://localhost:5173|https://stegoshield\.vercel\.app)$"))
+CORS(app, supports_credentials=True , origins=[
+    "http://localhost:5173",            # for dev
+    "https://stego-shield.vercel.app/",
+    "https://stegoshield-3ius.onrender.com"   # for prod (replace if needed)
+])
 
 
 app.secret_key = "your-secret-key"  # Replace with a strong secret key
