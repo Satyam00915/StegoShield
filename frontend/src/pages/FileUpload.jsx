@@ -318,8 +318,8 @@ const FileUploader = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className={`mt-4 p-3 border rounded-md shadow-md ${result.result === "Malicious"
-                ? "bg-red-50 border-red-200 dark:bg-red-900/30 dark:border-red-700"
-                : "bg-green-50 border-green-200 dark:bg-green-900/30 dark:border-green-700"
+              ? "bg-red-50 border-red-200 dark:bg-red-900/30 dark:border-red-700"
+              : "bg-green-50 border-green-200 dark:bg-green-900/30 dark:border-green-700"
               }`}
           >
             <div className="flex items-center justify-between">
@@ -554,8 +554,8 @@ const FileUploader = () => {
                       setShowModal(true);
                     }}
                     className={`cursor-pointer rounded-lg p-4 shadow-md border transition transform hover:scale-[1.01] ${item.result === "Malicious"
-                        ? "bg-red-50 dark:bg-red-900/30 border-red-300 dark:border-red-700 hover:shadow-red-300 dark:hover:shadow-red-900/50"
-                        : "bg-green-50 dark:bg-green-900/30 border-green-300 dark:border-green-700 hover:shadow-green-300 dark:hover:shadow-green-900/50"
+                      ? "bg-red-50 dark:bg-red-900/30 border-red-300 dark:border-red-700 hover:shadow-red-300 dark:hover:shadow-red-900/50"
+                      : "bg-green-50 dark:bg-green-900/30 border-green-300 dark:border-green-700 hover:shadow-green-300 dark:hover:shadow-green-900/50"
                       }`}
                   >
                     <div className="flex justify-between items-start">
@@ -569,8 +569,8 @@ const FileUploader = () => {
                       </div>
                       <span
                         className={`text-xs px-2 py-1 rounded-full ${item.result === "Malicious"
-                            ? "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300"
-                            : "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300"
+                          ? "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300"
+                          : "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300"
                           }`}
                       >
                         {item.result}
@@ -638,8 +638,8 @@ const FileUploader = () => {
                 <div className="flex justify-between border-b pb-2">
                   <span className="text-gray-500 dark:text-gray-400">Result:</span>
                   <span className={`font-medium  ${selectedHistoryItem.result === "Malicious"
-                      ? "text-red-600 dark:text-red-400"
-                      : "text-green-600 dark:text-green-400"
+                    ? "text-red-600 dark:text-red-400"
+                    : "text-green-600 dark:text-green-400"
                     }`}>
                     {selectedHistoryItem.result}
                   </span>

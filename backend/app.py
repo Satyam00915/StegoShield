@@ -47,7 +47,7 @@ app = Flask(__name__, static_folder=os.path.abspath("../frontend/dist"), static_
 app.config.update(
     SESSION_COOKIE_SAMESITE="None",  # allow cross-site cookies
     SESSION_COOKIE_SECURE=True,       # only send over HTTPS
-    SESSION_COOKIE_DOMAIN=".stego-shield.vercel.app"
+    SESSION_COOKIE_DOMAIN="stegoshield-3ius.onrender.com"
 )
 
 
