@@ -154,12 +154,36 @@ const Dashboard = () => {
 
 
   const deleteFile = (index) => {
-    const updatedHistory = [...history];
-    updatedHistory.splice(index, 1);
-    localStorage.setItem("uploadHistory", JSON.stringify(updatedHistory));
-    setHistory(updatedHistory);
-    setIsDeleteModalOpen(false);
-    toast.success("File deleted successfully");
+    const fileToDelete = filteredHistory[index];
+    
+    // First find the corresponding item in the full history to get the database ID
+    const dbItem = history.find(item => 
+      item.name === fileToDelete.name && 
+      item.date === fileToDelete.date
+    );
+  
+    if (!dbItem || !dbItem.id) {
+      toast.error("Could not identify file to delete");
+      return;
+    }
+  
+    fetch(`http://localhost:5000/api/history/${dbItem.id}`, {
+      method: 'DELETE',
+      credentials: "include",
+    })
+    .then(response => {
+      if (!response.ok) throw new Error('Failed to delete from database');
+      // Update local state
+      const updatedHistory = history.filter(item => item.id !== dbItem.id);
+      localStorage.setItem("uploadHistory", JSON.stringify(updatedHistory));
+      setHistory(updatedHistory);
+      setIsDeleteModalOpen(false);
+      toast.success("File deleted successfully");
+    })
+    .catch(err => {
+      console.error("Delete error:", err);
+      toast.error("Failed to delete file");
+    });
   };
 
   const clearFilters = () => {

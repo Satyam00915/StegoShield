@@ -49,7 +49,7 @@ CORS(app, supports_credentials=True)
 
 app.secret_key = "your-secret-key"  # Replace with a strong secret key
 
-cred = credentials.Certificate("backend/firebase_config.json")
+cred = credentials.Certificate("firebase_config.json")
 firebase_admin.initialize_app(cred)
 
 # Load model once at startup
@@ -422,7 +422,7 @@ def get_user_history():
 
         # Fetch from uploads table for dashboard history
         cursor.execute("""
-            SELECT filename, filetype, result, file_url, created_at 
+            SELECT id, filename, filetype, result, file_url, created_at 
             FROM uploads 
             WHERE user_id = %s
             ORDER BY created_at DESC
@@ -432,11 +432,12 @@ def get_user_history():
         history = []
         for row in rows:
             history.append({
-                "name": row[0],
-                "type": row[1],
-                "result": row[2],
-                "url": row[3],
-                "date": row[4].strftime("%Y-%m-%d %H:%M:%S") if row[4] else None,
+                "id": row[0],
+                "name": row[1],
+                "type": row[2],
+                "result": row[3],
+                "url": row[4],
+                "date": row[5].strftime("%Y-%m-%d %H:%M:%S") if row[5] else None,
             })
 
         # Optionally add confidence from `results` table if needed:
@@ -459,6 +460,85 @@ def get_user_history():
         print("Error fetching history:", e)
         return jsonify({"error": str(e)}), 500
 
+# Add this route anywhere with your other routes (before the error handler)
+@app.route("/api/history/<int:history_id>", methods=["DELETE"])
+def delete_history(history_id):
+    if 'user_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # First verify the history item belongs to the current user
+        cursor.execute("SELECT user_id FROM uploads WHERE id = %s", (history_id,))
+        result = cursor.fetchone()
+
+        if not result:
+            return jsonify({"error": "History item not found"}), 404
+
+        if result[0] != session['user_id']:
+            return jsonify({"error": "Unauthorized to delete this item"}), 403
+
+        # Get filename before deleting (to delete from results table)
+        cursor.execute("SELECT filename FROM uploads WHERE id = %s", (history_id,))
+        filename = cursor.fetchone()[0]
+
+        # Delete from uploads table
+        cursor.execute("DELETE FROM uploads WHERE id = %s", (history_id,))
+        
+        # Also delete from results table (if exists)
+        cursor.execute("DELETE FROM results WHERE filename = %s AND user_id = %s", 
+                      (filename, session['user_id']))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({"message": "History item deleted successfully"})
+
+    except Exception as e:
+        print("Error deleting history:", e)
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/history/all", methods=["DELETE"])
+def clear_all_history():
+    data = request.get_json()
+    print("Received data:", data)
+    if 'user_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        user_id = session['user_id']
+        print("User ID:", user_id)
+
+        # Delete all user's uploads and get the filenames
+        cursor.execute("DELETE FROM uploads WHERE user_id = %s RETURNING filename", (user_id,))
+        deleted_files = cursor.fetchall()
+        filenames = [file[0] for file in deleted_files]
+
+        # Delete matching results
+        if filenames:
+            cursor.execute(
+                "DELETE FROM results WHERE user_id = %s AND filename = ANY(%s)",
+                (user_id, filenames)
+            )
+
+        conn.commit()
+        return jsonify({
+            "message": "All history cleared successfully",
+            "deleted_count": len(filenames)
+        })
+
+    except Exception as e:
+        conn.rollback()
+        print("Error clearing history:", e)
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
 
 # --------------------- FRONTEND ROUTING FALLBACK ---------------------
 
@@ -471,4 +551,4 @@ def not_found(e):
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
-    app.run(debug=True)
+    #app.run(debug=True)

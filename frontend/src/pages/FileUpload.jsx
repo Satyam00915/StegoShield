@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
-import { Loader2, Upload, ShieldCheck, ShieldAlert, File, X, History, Info, Download, BarChart2, Settings, HelpCircle } from "lucide-react";
+import { Loader2, Upload, ShieldCheck, ShieldAlert, File, X, History, Info, Download, BarChart2, Settings, HelpCircle, Trash2 } from "lucide-react";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -38,6 +38,8 @@ const FileUploader = () => {
   const [showTutorial, setShowTutorial] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+
+  const [showClearHistoryModal, setShowClearHistoryModal] = useState(false);
 
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
@@ -201,7 +203,7 @@ const FileUploader = () => {
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-bold text-gray-700 dark:text-white flex items-center gap-2">
             {label}
-            <button 
+            <button
               onClick={() => toast(<div className="p-2">
                 <h4 className="font-bold mb-1">About {label} Analysis</h4>
                 <p className="text-sm">Detects hidden data, watermarks, and anomalies in {type} files.</p>
@@ -212,7 +214,7 @@ const FileUploader = () => {
             </button>
           </h3>
           {file && (
-            <button 
+            <button
               onClick={() => {
                 setFile(null);
                 setPreview("");
@@ -247,13 +249,13 @@ const FileUploader = () => {
             animate={
               analyzing
                 ? {
-                    scale: [1, 1.02, 1],
-                    boxShadow: [
-                      "0 0 0px rgba(99,102,241,0)",
-                      "0 0 15px rgba(99,102,241,0.6)",
-                      "0 0 0px rgba(99,102,241,0)",
-                    ],
-                  }
+                  scale: [1, 1.02, 1],
+                  boxShadow: [
+                    "0 0 0px rgba(99,102,241,0)",
+                    "0 0 15px rgba(99,102,241,0.6)",
+                    "0 0 0px rgba(99,102,241,0)",
+                  ],
+                }
                 : {}
             }
             transition={analyzing ? { repeat: Infinity, duration: 1.5 } : {}}
@@ -263,7 +265,7 @@ const FileUploader = () => {
               <>
                 <img src={preview} alt="Preview" className="w-full rounded-md" />
                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                  <button 
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
                       window.open(preview, "_blank");
@@ -282,9 +284,8 @@ const FileUploader = () => {
 
         <button
           onClick={() => handleAnalyze(file, setResult, setProgress, setAnalyzing)}
-          className={`w-full px-4 py-2 bg-[#113742] text-white rounded-md hover:bg-gray-900 transition flex items-center justify-center gap-2 ${
-            analyzing ? "cursor-not-allowed opacity-70" : ""
-          }`}
+          className={`w-full px-4 py-2 bg-[#113742] text-white rounded-md hover:bg-gray-900 transition flex items-center justify-center gap-2 ${analyzing ? "cursor-not-allowed opacity-70" : ""
+            }`}
           disabled={analyzing}
         >
           {analyzing ? (
@@ -316,11 +317,10 @@ const FileUploader = () => {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`mt-4 p-3 border rounded-md shadow-md ${
-              result.result === "Malicious"
+            className={`mt-4 p-3 border rounded-md shadow-md ${result.result === "Malicious"
                 ? "bg-red-50 border-red-200 dark:bg-red-900/30 dark:border-red-700"
                 : "bg-green-50 border-green-200 dark:bg-green-900/30 dark:border-green-700"
-            }`}
+              }`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 font-semibold">
@@ -337,8 +337,8 @@ const FileUploader = () => {
                 {(result.confidence * 100).toFixed(2)}%
               </span>
             </div>
-            
-            <button 
+
+            <button
               onClick={() => {
                 setSelectedHistoryItem({
                   name: file.name,
@@ -360,16 +360,59 @@ const FileUploader = () => {
 
   // Filter history based on search term
   const filteredHistory = history.filter(item => {
-    return item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-           item.result.toLowerCase().includes(searchTerm.toLowerCase());
+    return item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.result.toLowerCase().includes(searchTerm.toLowerCase());
   });
+
+  // Clear history function
+  const clearAllHistory = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user?.id) {
+        toast.error("User not authenticated");
+        return;
+      }
+
+      const response = await fetch('http://localhost:5000/api/history/all', {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'  // Explicitly ask for JSON
+        },
+        body: JSON.stringify({ user_id: user.id + "hello" }),
+      });
+
+      // First check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        throw new Error(`Expected JSON but got: ${text.substring(0, 100)}`);
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to clear database history');
+      }
+
+      localStorage.removeItem("uploadHistory");
+      setHistory([]);
+      setSearchTerm("");
+      setShowClearHistoryModal(false);
+      toast.success("All history permanently deleted");
+    } catch (error) {
+      console.error("Clear history error:", error);
+      toast.error(error.message || "Failed to clear history");
+    }
+  };
 
   return (
     <>
       <Header />
       <div className="min-h-screen bg-blue-50 dark:bg-gray-900">
         <div className="max-w-7xl 2xl:max-w-[1800px] mx-auto px-4 pb-20">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="pt-8 pb-12 text-center"
@@ -462,7 +505,7 @@ const FileUploader = () => {
                   {filteredHistory.length} items • Last scan: {history[0]?.date || "N/A"}
                 </p>
               </div>
-              
+
               <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                 <div className="relative">
                   <input
@@ -487,16 +530,9 @@ const FileUploader = () => {
                     />
                   </svg>
                 </div>
-                
+
                 <button
-                  onClick={() => {
-                    if (window.confirm("Are you sure you want to clear all history?")) {
-                      localStorage.removeItem("uploadHistory");
-                      setHistory([]);
-                      setSearchTerm("");
-                      toast.success("History cleared");
-                    }
-                  }}
+                  onClick={() => setShowClearHistoryModal(true)}
                   className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition"
                   disabled={history.length === 0}
                 >
@@ -517,11 +553,10 @@ const FileUploader = () => {
                       setSelectedHistoryItem(item);
                       setShowModal(true);
                     }}
-                    className={`cursor-pointer rounded-lg p-4 shadow-md border transition transform hover:scale-[1.01] ${
-                      item.result === "Malicious"
+                    className={`cursor-pointer rounded-lg p-4 shadow-md border transition transform hover:scale-[1.01] ${item.result === "Malicious"
                         ? "bg-red-50 dark:bg-red-900/30 border-red-300 dark:border-red-700 hover:shadow-red-300 dark:hover:shadow-red-900/50"
                         : "bg-green-50 dark:bg-green-900/30 border-green-300 dark:border-green-700 hover:shadow-green-300 dark:hover:shadow-green-900/50"
-                    }`}
+                      }`}
                   >
                     <div className="flex justify-between items-start">
                       <div>
@@ -533,16 +568,15 @@ const FileUploader = () => {
                         </p>
                       </div>
                       <span
-                        className={`text-xs px-2 py-1 rounded-full ${
-                          item.result === "Malicious"
+                        className={`text-xs px-2 py-1 rounded-full ${item.result === "Malicious"
                             ? "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300"
                             : "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300"
-                        }`}
+                          }`}
                       >
                         {item.result}
                       </span>
                     </div>
-                    
+
                     <div className="mt-3 flex items-center justify-between">
                       <div className="text-sm text-gray-600 dark:text-gray-400">
                         Confidence: {(item.confidence * 100).toFixed(2)}%
@@ -591,11 +625,11 @@ const FileUploader = () => {
               >
                 <X size={24} />
               </button>
-              
+
               <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
                 Scan Details
               </h3>
-              
+
               <div className="space-y-4 text-sm">
                 <div className="flex justify-between border-b pb-2">
                   <span className="text-gray-500 dark:text-gray-400">File Name:</span>
@@ -603,11 +637,10 @@ const FileUploader = () => {
                 </div>
                 <div className="flex justify-between border-b pb-2">
                   <span className="text-gray-500 dark:text-gray-400">Result:</span>
-                  <span className={`font-medium  ${
-                    selectedHistoryItem.result === "Malicious" 
-                      ? "text-red-600 dark:text-red-400" 
+                  <span className={`font-medium  ${selectedHistoryItem.result === "Malicious"
+                      ? "text-red-600 dark:text-red-400"
                       : "text-green-600 dark:text-green-400"
-                  }`}>
+                    }`}>
                     {selectedHistoryItem.result}
                   </span>
                 </div>
@@ -624,7 +657,7 @@ const FileUploader = () => {
                   </span>
                 </div>
               </div>
-              
+
               <div className="mt-6 pt-4 border-t flex justify-center">
                 <button
                   onClick={() => setShowModal(false)}
@@ -651,11 +684,11 @@ const FileUploader = () => {
               >
                 <X size={24} />
               </button>
-              
+
               <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
                 StegoShield Analyzer
               </h3>
-              
+
               <div className="space-y-4">
                 <div className="flex items-start gap-4">
                   <div className="bg-indigo-100 dark:bg-indigo-900/50 p-2 rounded-full flex-shrink-0">
@@ -668,7 +701,7 @@ const FileUploader = () => {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-4">
                   <div className="bg-green-100 dark:bg-green-900/50 p-2 rounded-full flex-shrink-0">
                     <BarChart2 size={20} className="text-green-600 dark:text-green-300" />
@@ -680,7 +713,7 @@ const FileUploader = () => {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-4">
                   <div className="bg-purple-100 dark:bg-purple-900/50 p-2 rounded-full flex-shrink-0">
                     <ShieldCheck size={20} className="text-purple-600 dark:text-purple-300" />
@@ -693,13 +726,59 @@ const FileUploader = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="mt-6 pt-4 border-t flex justify-center">
                 <button
                   onClick={() => setShowTutorial(false)}
                   className="px-4 py-2 bg-[#113742] text-white rounded-lg hover:bg-gray-900 transition "
                 >
                   Get Started
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Clear History Confirmation Modal */}
+        {showClearHistoryModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md relative shadow-2xl"
+            >
+              <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
+                Clear All History
+              </h3>
+
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                Are you sure you want to permanently delete all your scan history? This action cannot be undone.
+              </p>
+
+              <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-full bg-red-100 dark:bg-red-900/30">
+                    <Trash2 className="text-red-500 dark:text-red-400" size={18} />
+                  </div>
+                  <p className="text-sm text-red-600 dark:text-red-400">
+                    This will permanently remove all records from both your local history and our database.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  onClick={() => setShowClearHistoryModal(false)}
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={clearAllHistory}
+
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                >
+                  Delete Permanently
                 </button>
               </div>
             </motion.div>
