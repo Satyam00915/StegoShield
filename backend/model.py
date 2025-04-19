@@ -71,23 +71,10 @@ class VideoStegoModel(nn.Module):
 
 # ✅ 🚀 Fixed Model Loading Function
 def load_model():
-    models_dict = {
-        "image": ImageStegoCNN(),
-        "audio": AudioStegoCNN(),
-        "video": VideoStegoModel()
-    }
-
-    # 🔹 Load Weights
-    models_dict["image"].load_state_dict(torch.load("backend/models/image_model.pth", map_location=torch.device('cpu')))
-    models_dict["audio"].load_state_dict(torch.load("backend/models/audio_model.pth", map_location=torch.device('cpu')))
-    models_dict["video"].load_state_dict(torch.load("backend/models/video_model.pth", map_location=torch.device('cpu')), strict=False)  # ✅ Fixed: `strict=False`
-
-    # 🔹 Set to Evaluation Mode
-    models_dict["image"].eval()
-    models_dict["audio"].eval()
-    models_dict["video"].eval()
-
-    return models_dict
+    model = ImageStegoCNN()
+    model.load_state_dict(torch.load("backend/models/image_model.pth", map_location=torch.device('cpu')))
+    model.eval()
+    return model
 
 # Preprocess image for model prediction
 def preprocess_image(image_file):
@@ -100,7 +87,7 @@ def preprocess_image(image_file):
     return transform(image).unsqueeze(0)  # Add batch dimension
 
 # Predict function to detect malicious payloads
-def predict(file, models):
+def predict(file, model):
     print("📥 Inside predict()")
     print("Filename:", file.filename)
 
@@ -109,21 +96,7 @@ def predict(file, models):
         
         if filename.endswith(('.png', '.jpg', '.jpeg')):
             print("🖼 Detected as image")
-            model = models["image"]
             input_data = preprocess_image(file)
-
-        elif filename.endswith(('.wav', '.mp3')):
-            print("🎵 Detected as audio")
-            model = models["audio"]
-            # TODO: Implement audio preprocessing
-            input_data = torch.randn(1, 1, 128, 300)
-
-        elif filename.endswith(('.mp4', '.avi', '.mkv')):
-            print("🎥 Detected as video")
-            model = models["video"]
-            # TODO: Implement video preprocessing
-            input_data = torch.randn(1, 10, 3, 224, 224)
-
         else:
             print("❌ Unsupported file type")
             return "Unsupported file type", 0.0
@@ -131,8 +104,6 @@ def predict(file, models):
         print("✅ Running model prediction...")
         with torch.no_grad():
             print("🧪 input_data shape:", input_data.shape)
-            print("🧪 input_data type:", type(input_data))
-
             output = model(input_data)
             print("📊 Model output:", output)
 
