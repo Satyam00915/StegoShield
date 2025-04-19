@@ -59,8 +59,8 @@ const Login = () => {
             const data = await res.json();
 
             if (res.ok) {
-                const userobj = localStorage.setItem("user", JSON.stringify(data.user));
-                toast.success(`Welcome, ${userobj?.name || "USER"}`);
+               localStorage.setItem("user", JSON.stringify(data.user));
+                toast.success(`Welcome, ${JSON.parse(localStorage.getItem("user")).name}`);
                 navigate("/dashboard");
             } else {
                 toast.error(data.message || "Login failed");
