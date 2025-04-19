@@ -75,6 +75,18 @@ BEGIN
     END IF;
 END$$;
 
+-- Add google_uid column if not exists
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name='users' AND column_name='google_uid'
+    ) THEN
+        ALTER TABLE users ADD COLUMN google_uid TEXT UNIQUE;
+    END IF;
+END$$;
+
+
 -- Add password_null_check constraint if not exists
 DO $$
 BEGIN
