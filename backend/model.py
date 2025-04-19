@@ -72,7 +72,7 @@ class VideoStegoModel(nn.Module):
 # ✅ 🚀 Fixed Model Loading Function
 def load_model():
     model = ImageStegoCNN()
-    model.load_state_dict(torch.load("backend/models/image_model.pth", map_location=torch.device('cpu')))
+    model.load_state_dict(torch.load("models/image_model.pth", map_location=torch.device('cpu')))
     model.eval()
     return model
 
