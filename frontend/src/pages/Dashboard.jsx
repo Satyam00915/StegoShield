@@ -64,7 +64,7 @@ const Dashboard = () => {
     console.log(user);
 
     // ✅ FETCH HISTORY FROM BACKEND
-    fetch(`http://localhost:5000/api/history?user_id=${storedUser.id}`, {
+    fetch(`https://stegoshield-3ius.onrender.com/api/history?user_id=${storedUser.id}`, {
       credentials: "include",
     })
       .then(res => res.json())
@@ -167,7 +167,7 @@ const Dashboard = () => {
       return;
     }
   
-    fetch(`http://localhost:5000/api/history/${dbItem.id}`, {
+    fetch(`https://stegoshield-3ius.onrender.com/api/history/${dbItem.id}`, {
       method: 'DELETE',
       credentials: "include",
     })

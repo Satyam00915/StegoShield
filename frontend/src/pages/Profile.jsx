@@ -84,7 +84,7 @@ const Profile = () => {
     };
 
     try {
-      const res = await fetch(`http://localhost:5000/api/user/${profile.id}`, {
+      const res = await fetch(`https://stegoshield-3ius.onrender.com/api/user/${profile.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedProfile),

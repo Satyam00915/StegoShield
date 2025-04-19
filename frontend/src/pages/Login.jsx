@@ -21,7 +21,7 @@ const Login = () => {
         setLoading(true);
 
         try {
-            const res = await fetch("http://localhost:5000/login", {
+            const res = await fetch("https://stegoshield-3ius.onrender.com/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
@@ -49,7 +49,7 @@ const Login = () => {
             const result = await signInWithPopup(auth, provider);
             const idToken = await result.user.getIdToken();
 
-            const res = await fetch("http://localhost:5000/google-login", {
+            const res = await fetch("https://stegoshield-3ius.onrender.com/google-login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ idToken }),
@@ -72,7 +72,7 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col"> 
+        <div className="min-h-screen flex flex-col">
             <Header />
             <section className="flex-grow bg-blue-50 dark:bg-gray-900 flex items-center justify-center px-4 py-12 relative">
                 <div className="max-w-md w-full bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-2xl 
@@ -127,8 +127,8 @@ const Login = () => {
                                 className="absolute top-9 right-3 pr-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300
                                           lg:top-10 lg:right-4 2xl:top-12 2xl:right-5"
                             >
-                                {showPassword ? <EyeOff size={24} className="lg:w-6 lg:h-6 2xl:w-7 2xl:h-7" /> : 
-                                               <Eye size={24} className="lg:w-6 lg:h-6 2xl:w-7 2xl:h-7" />}
+                                {showPassword ? <EyeOff size={24} className="lg:w-6 lg:h-6 2xl:w-7 2xl:h-7" /> :
+                                    <Eye size={24} className="lg:w-6 lg:h-6 2xl:w-7 2xl:h-7" />}
                             </button>
                         </div>
 

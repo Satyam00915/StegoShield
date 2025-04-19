@@ -59,7 +59,7 @@ const Signup = () => {
         setLoading(true);
 
         try {
-            const res = await fetch("http://localhost:5000/signup", {
+            const res = await fetch("https://stegoshield-3ius.onrender.com/signup", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -98,7 +98,7 @@ const Signup = () => {
                 uid: user.uid,
             };
 
-            const res = await fetch("http://localhost:5000/google-signup", {
+            const res = await fetch("https://stegoshield-3ius.onrender.com/google-signup", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -190,8 +190,8 @@ const Signup = () => {
                                 className="absolute top-[38px] right-3 pr-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300
                                           lg:top-[42px] lg:right-4 2xl:top-[50px] 2xl:right-5"
                             >
-                                {showPassword ? <EyeOff size={24} className="lg:w-6 lg:h-6 2xl:w-7 2xl:h-7" /> : 
-                                               <Eye size={24} className="lg:w-6 lg:h-6 2xl:w-7 2xl:h-7" />}
+                                {showPassword ? <EyeOff size={24} className="lg:w-6 lg:h-6 2xl:w-7 2xl:h-7" /> :
+                                    <Eye size={24} className="lg:w-6 lg:h-6 2xl:w-7 2xl:h-7" />}
                             </button>
                         </div>
 
@@ -215,8 +215,8 @@ const Signup = () => {
                                 className="absolute top-[38px] right-3 pr-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300
                                           lg:top-[42px] lg:right-4 2xl:top-[50px] 2xl:right-5"
                             >
-                                {showConfirmPassword ? <EyeOff size={24} className="lg:w-6 lg:h-6 2xl:w-7 2xl:h-7" /> : 
-                                                      <Eye size={24} className="lg:w-6 lg:h-6 2xl:w-7 2xl:h-7" />}
+                                {showConfirmPassword ? <EyeOff size={24} className="lg:w-6 lg:h-6 2xl:w-7 2xl:h-7" /> :
+                                    <Eye size={24} className="lg:w-6 lg:h-6 2xl:w-7 2xl:h-7" />}
                             </button>
                         </div>
 

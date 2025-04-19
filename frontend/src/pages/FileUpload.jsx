@@ -98,7 +98,7 @@ const FileUploader = () => {
     formData.append("file", file);
 
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", "http://localhost:5000/upload");
+    xhr.open("POST", "https://stegoshield-3ius.onrender.com/upload");
     xhr.withCredentials = true;
 
     xhr.upload.onprogress = (e) => {
@@ -373,7 +373,7 @@ const FileUploader = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:5000/api/history/all', {
+      const response = await fetch('https://stegoshield-3ius.onrender.com/api/history/all', {
         method: 'DELETE',
         credentials: 'include',
         headers: {
