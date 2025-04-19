@@ -46,7 +46,7 @@ def admin_required(f):
 app = Flask(__name__, static_folder="../frontend/dist", static_url_path="/")
 CORS(app, supports_credentials=True , origins=[
     "http://localhost:5173",            # for dev
-    "https://stegoshield.vercel.app",   # for prod (replace if needed)
+    "https://stego-shield.vercel.app/",   # for prod (replace if needed)
 ])
 
 
