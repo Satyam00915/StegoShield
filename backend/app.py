@@ -368,9 +368,10 @@ def logout():
 
 # --------------------- PREDICTION ROUTE ---------------------
 
-@app.route('/upload', methods=['POST', 'GET'])
+@app.route('/upload', methods=['POST', 'GET' , 'OPTIONS'])
 def detect():
-    print(session["user_id"])
+    if request.method == "OPTIONS":
+        return '', 204 
     if request.method == 'GET':
         return "StegoShield API is running! Use POST request to analyze files."
 
