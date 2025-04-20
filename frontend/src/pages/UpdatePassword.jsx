@@ -36,7 +36,7 @@ const UpdatePassword = () => {
 
     setLoading(true);
     try {
-      const res = await axios.post("http://stegoshield-3ius.onrender.com/api/update-password", {
+      const res = await axios.post("https://stegoshield-3ius.onrender.com/api/update-password", {
         email,
         newPassword,
       });
