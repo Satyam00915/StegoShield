@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 import axios from "axios";
+import { motion } from "framer-motion";
+import { Mail, Lock, ArrowLeft } from "lucide-react";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -10,6 +14,7 @@ const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // All logic functions remain exactly the same
   const handleSendOtp = async (e) => {
     e.preventDefault();
     if (!email) return toast.error("Please enter your email");
@@ -54,7 +59,6 @@ const ForgotPassword = () => {
       });
       if (res.data.success) {
         toast.success("OTP verified");
-        // Redirect to update password page with token (or email if tokenless)
         navigate(`/update-password?token=${res.data.token}`);
       } else {
         toast.error(res.data.message || "Invalid OTP");
@@ -67,58 +71,131 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="bg-white shadow-xl rounded-2xl p-8 max-w-md w-full">
-        <h2 className="text-2xl font-bold mb-6 text-center">Forgot Password</h2>
+    <div className="flex flex-col min-h-screen bg-blue-50 dark:bg-gray-900 ">
+      <Header />
+      <main className="flex-grow flex items-center justify-center px-4 py-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-lg"
+        >
+          <div className="bg-blue-100 dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
+            <div className="p-8">
+              <div className="flex justify-center mb-6">
+                <div className="bg-blue-200 dark:bg-blue-900/30 p-3 rounded-full">
+                  <Lock className="h-8 w-8 text-gray-800 dark:text-[#668ca5]" />
+                </div>
+              </div>
+              
+              <h2 className="text-3xl font-bold text-center text-gray-800 dark:text-gray-300 mb-2">
+                {otpSent ? "Verify OTP" : "Reset Password"}
+              </h2>
+              <p className="text-center text-gray-600 dark:text-gray-400 mb-8">
+                {otpSent 
+                  ? "Enter the 4-digit code sent to your email"
+                  : "Enter your email to receive a verification code"}
+              </p>
 
-        <form onSubmit={otpSent ? handleVerifyOtp : handleSendOtp} className="space-y-6">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 text-center">
-              Enter your email
-            </label>
-            <input
-              id="email"
-              type="email"
-              className="mt-1 block w-full px-4 py-2 border rounded-lg shadow-sm focus:ring focus:ring-gray-300"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              required
-              disabled={otpSent}
-            />
-          </div>
+              <form onSubmit={otpSent ? handleVerifyOtp : handleSendOtp} className="space-y-6">
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
+                    Email address
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Mail className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      id="email"
+                      type="email"
+                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:text-white"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      required
+                      disabled={otpSent || loading}
+                    />
+                  </div>
+                </div>
 
-          {otpSent && (
-            <div className="flex justify-center gap-2">
-              {otp.map((digit, idx) => (
-                <input
-                  key={idx}
-                  id={`otp-${idx}`}
-                  type="text"
-                  maxLength="1"
-                  value={digit}
-                  onChange={(e) => handleOtpChange(idx, e.target.value)}
-                  className="w-12 h-12 text-center text-xl border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
-                />
-              ))}
+                {otpSent && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    transition={{ duration: 0.3 }}
+                    className="space-y-4"
+                  >
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Verification code
+                    </label>
+                    <div className="flex justify-between gap-3">
+                      {otp.map((digit, idx) => (
+                        <input
+                          key={idx}
+                          id={`otp-${idx}`}
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          maxLength="1"
+                          value={digit}
+                          onChange={(e) => handleOtpChange(idx, e.target.value)}
+                          className="flex-1 h-14 text-center text-2xl font-semibold border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                          disabled={loading}
+                        />
+                      ))}
+                    </div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
+                      Didn't receive code?{" "}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOtp(["", "", "", ""]);
+                          setOtpSent(false);
+                        }}
+                        className="text-blue-600 dark:text-blue-400 hover:underline focus:outline-none"
+                      >
+                        Resend
+                      </button>
+                    </p>
+                  </motion.div>
+                )}
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={loading}
+                  className={`w-full py-3 px-4 rounded-lg font-medium text-white transition ${loading
+                ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
+                : "bg-gray-800 hover:bg-gray-700 dark:bg-[#405c64] dark:hover:bg-[#587d88]"}`}
+                >
+                  {loading ? (
+                    <span className="flex items-center justify-center">
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Processing...
+                    </span>
+                  ) : otpSent ? "Verify Code" : "Send Verification Code"}
+                </motion.button>
+              </form>
+
+              <div className="mt-6 text-center">
+                <Link 
+                  to="/login"
+                  className="inline-flex items-center text-sm text-gray-800 dark:text-[#68848d] hover:underline font-medium transition"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  Back to login
+                </Link>
+              </div>
             </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gray-800 text-white py-2 rounded-full hover:bg-gray-700 transition"
-          >
-            {loading ? "Please wait..." : otpSent ? "Verify OTP" : "Send OTP"}
-          </button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <Link to="/login" className="text-sm text-gray-600 hover:text-gray-800">
-            Back to Login
-          </Link>
-        </div>
-      </div>
+          </div>
+        </motion.div>
+      </main>
+      <Footer />
     </div>
   );
 };
