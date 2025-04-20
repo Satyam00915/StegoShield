@@ -21,6 +21,9 @@ import smtplib
 import random
 from email.message import EmailMessage
 from dotenv import load_dotenv
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
 
 load_dotenv()
 
@@ -222,6 +225,64 @@ def signup():
         return jsonify({"error": str(e)}), 500
 
     
+@app.route("/api/update-password", methods=["POST"])
+def update_password():
+    data = request.get_json()
+    email = data.get("email")
+    new_password = data.get("newPassword")
+    
+    if not email or not new_password:
+        return jsonify({"success": False, "message": "Email and new password are required"}), 400
+    
+    if len(new_password) < 6:
+        return jsonify({"success": False, "message": "Password must be at least 6 characters"}), 400
+    
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        # First check if user exists
+        cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
+        user = cursor.fetchone()
+        
+        if not user:
+            return jsonify({"success": False, "message": "User not found"}), 404
+        
+        # Hash the new password
+        hashed_password = generate_password_hash(new_password)
+        
+        # Update password in database
+        cursor.execute(
+            "UPDATE users SET password = %s WHERE email = %s RETURNING id, name, email",
+            (hashed_password, email)
+        )
+        updated_user = cursor.fetchone()
+        conn.commit()
+        
+        if updated_user:
+            user_id, name, email = updated_user
+            return jsonify({
+                "success": True,
+                "message": "Password updated successfully",
+                "user": {
+                    "id": user_id,
+                    "name": name,
+                    "email": email
+                }
+            })
+        else:
+            return jsonify({"success": False, "message": "Failed to update password"}), 500
+            
+    except Exception as e:
+        conn.rollback()
+        print(f"Error updating password: {e}")
+        return jsonify({"success": False, "message": "Error updating password"}), 500
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+
 @app.route("/google-signup", methods=["POST"])
 def google_signup():
     data = request.get_json()
@@ -270,8 +331,14 @@ def google_signup():
 
 @app.route("/login", methods=["POST" , "OPTIONS"])
 def login():
+    print("🔥 Login route called", flush=True)
     if request.method == "OPTIONS":
-        return '', 204 
+        response = jsonify()
+        response.headers.add("Access-Control-Allow-Origin", request.headers.get("Origin", "*"))
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type")
+        print("sneha options")
+        return response, 204 
     data = request.get_json()
     print(data)
     email = data.get("email")
@@ -280,6 +347,8 @@ def login():
     try:
         conn = get_connection()
         cursor = conn.cursor()
+
+
 
         # Fetch name AND avatar along with password
         cursor.execute("SELECT id, name, password, avatar FROM users WHERE email = %s", (email,))
@@ -297,9 +366,10 @@ def login():
             return jsonify({"message": "Invalid Credentials"}), 500
 
         if not check_password_hash(hashed_password, password):
-            return jsonify({"message": "Incorrect password"}), 401
+            return jsonify({"message": "Incorrect passworddd"}), 401
 
         session['user_id'] = user_id
+        print(session['user_id'])
 
         # ✅ Create response and manually set CORS headers
         response = jsonify({
@@ -310,9 +380,16 @@ def login():
                 "avatar": avatar
             }
         })
-        response.headers["Access-Control-Allow-Origin"] = "https://stego-shield.vercel.app"
-        response.headers["Access-Control-Allow-Credentials"] = "true"
-
+        # Set the origin header to match the request origin
+        allowed_origins = [
+            "http://localhost:5173",
+            "https://stego-shield.vercel.app",
+            "https://stegoshield-3ius.onrender.com"
+        ]
+        origin = request.headers.get('Origin')
+        if origin in allowed_origins:
+            response.headers.add("Access-Control-Allow-Origin", origin)
+        response.headers.add("Access-Control-Allow-Credentials", "true")
         return response, 200
 
     except Exception as e:
@@ -634,5 +711,5 @@ def not_found(e):
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
+    # app.run(debug=True)
     app.run(host='0.0.0.0', port=port)
-    #app.run(debug=True)

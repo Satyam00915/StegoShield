@@ -61,7 +61,7 @@ const Dashboard = () => {
       return navigate("/login");
     }
 
-    console.log(user);
+    console.log(storedUser.id);
 
     // ✅ FETCH HISTORY FROM BACKEND
     fetch(`https://stegoshield-3ius.onrender.com/api/history?user_id=${storedUser.id}`, {

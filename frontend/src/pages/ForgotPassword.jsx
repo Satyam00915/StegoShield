@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { Mail, Lock, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import axios from "axios";
@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
+  const Navigate = useNavigate();
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [loading, setLoading] = useState(false);
@@ -20,7 +21,7 @@ const ForgotPassword = () => {
 
     setLoading(true);
     try {
-      const res = await axios.post("/api/send-otp", { email });
+      const res = await axios.post("http://stegoshield-3ius.onrender.com/api/send-otp", { email });
       if (res.data.success) {
         toast.success("OTP sent to your email");
         setOtpSent(true);
@@ -52,12 +53,13 @@ const ForgotPassword = () => {
 
     setLoading(true);
     try {
-      const res = await axios.post("/api/verify-otp", {
+      const res = await axios.post("http://stegoshield-3ius.onrender.com/api/verify-otp", {
         email,
         otp: fullOtp,
       });
       if (res.data.success) {
         toast.success("OTP verified");
+        Navigate("/update-password", { state: { email } });
         setOtpVerified(true);
       } else {
         toast.error(res.data.message || "Invalid OTP");
@@ -94,8 +96,8 @@ const ForgotPassword = () => {
                 {otpVerified
                   ? "OTP verified! You can now reset your password."
                   : otpSent
-                  ? "Enter the 4-digit code sent to your email"
-                  : "Enter your email to receive a verification code"}
+                    ? "Enter the 4-digit code sent to your email"
+                    : "Enter your email to receive a verification code"}
               </p>
 
               <form onSubmit={otpSent ? handleVerifyOtp : handleSendOtp} className="space-y-6">
@@ -130,7 +132,7 @@ const ForgotPassword = () => {
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Verification code
                     </label>
-                    <div className="flex justify-between gap-3">
+                    <div className="flex justify-around gap-1">
                       {otp.map((digit, idx) => (
                         <input
                           key={idx}
@@ -141,7 +143,7 @@ const ForgotPassword = () => {
                           maxLength="1"
                           value={digit}
                           onChange={(e) => handleOtpChange(idx, e.target.value)}
-                          className="flex-1 h-14 text-center text-2xl font-semibold border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                          className="w-16 h-16 text-center text-2xl font-semibold border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                           disabled={loading || otpVerified}
                         />
                       ))}
@@ -170,11 +172,10 @@ const ForgotPassword = () => {
                     whileTap={{ scale: 0.98 }}
                     type="submit"
                     disabled={loading}
-                    className={`w-full py-3 px-4 rounded-lg font-medium text-white transition ${
-                      loading
-                        ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-                        : "bg-gray-800 hover:bg-gray-700 dark:bg-[#405c64] dark:hover:bg-[#587d88]"
-                    }`}
+                    className={`w-full py-3 px-4 rounded-lg font-medium text-white transition ${loading
+                      ? "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
+                      : "bg-gray-800 hover:bg-gray-700 dark:bg-[#405c64] dark:hover:bg-[#587d88]"
+                      }`}
                   >
                     {loading ? (
                       <span className="flex items-center justify-center">

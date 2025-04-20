@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Blog from "./pages/Blog";
 import HowItWorks from "./pages/HowItWorks";
+import UpdatePassword from "./pages/UpdatePassword";
 
 import "./components/landing.css";
 
@@ -27,7 +28,8 @@ function App() {
                         <Route path="/signup" element={<Signup />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/forgot-password" element={<ForgotPassword />} />
-                        
+                        <Route path="/update-password" element={<UpdatePassword />} />
+
                         <Route
                             path="/dashboard"
                             element={
