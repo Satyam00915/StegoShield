@@ -4,11 +4,11 @@ import "./landing.css";
 import { useAuth } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import DarkModeToggle from "./DarkModeToggle";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { isLoggedIn, setIsLoggedIn } = useAuth();
-  const [darkMode, setDarkMode] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,25 +22,7 @@ const Header = () => {
   useEffect(() => {
     const user = localStorage.getItem("user");
     setIsLoggedIn(!!user);
-
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark") {
-      document.documentElement.classList.add("dark");
-      setDarkMode(true);
-    }
   }, []);
-
-  const toggleDarkMode = () => {
-    const isDark = !darkMode;
-    setDarkMode(isDark);
-    if (isDark) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
-  };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
@@ -137,23 +119,8 @@ const Header = () => {
               ))}
             </ul>
 
-            {/* Dark Mode Toggle (Slider) */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-700 dark:text-gray-300">☀️</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={darkMode}
-                  onChange={toggleDarkMode}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-300 dark:bg-gray-600 rounded-full peer peer-checked:bg-blue-600 transition-all duration-300"></div>
-                <div
-                  className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-md transform peer-checked:translate-x-5 transition-all duration-300"
-                ></div>
-              </label>
-              <span className="text-sm text-gray-700 dark:text-gray-300">🌙</span>
-            </div>
+            {/* Dark Mode Toggle */}
+            <DarkModeToggle />
 
             {/* Auth Links */}
             {isLoggedIn ? (
