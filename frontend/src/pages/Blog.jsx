@@ -596,9 +596,9 @@ const Blog = () => {
                 <input
                   type="email"
                   placeholder="Your email address"
-                  className="flex-grow px-4 py-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
+                  className="flex-grow px-4 py-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white bg-blue-100 dark:bg-gray-300"
                 />
-                <button className="px-6 py-2 bg-white text-[#0e4f63] font-semibold rounded-lg hover:bg-gray-100 transition-colors">
+                <button className="px-6 py-2 bg-blue-100 dark:bg-gray-300 text-[#0e4f63] font-semibold rounded-lg hover:bg-gray-100 transition-colors">
                   Subscribe
                 </button>
               </div>

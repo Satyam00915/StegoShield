@@ -1,15 +1,20 @@
 import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
-import { Loader2, Upload, ShieldCheck, ShieldAlert, File, X, History, Info, Download, BarChart2, Settings, HelpCircle, Trash2 } from "lucide-react";
+import { 
+  Loader2, Upload, ShieldCheck, ShieldAlert, File, X, History, 
+  Info, Download, BarChart2, Settings, HelpCircle, Trash2, 
+  ChevronDown, ChevronUp, Star, Clock, Filter, HardDrive, 
+  Cloud, Database, Activity, Shield, AlertTriangle, Zap
+} from "lucide-react";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useDropzone } from "react-dropzone";
 import Footer from "../components/Footer";
 
-const FileUploader = () => {
-  // Existing state declarations (unchanged)
+const FileUpload = () => {
+  // File state management
   const [imageFile, setImageFile] = useState(null);
   const [audioFile, setAudioFile] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
@@ -30,16 +35,19 @@ const FileUploader = () => {
   const [audioProgress, setAudioProgress] = useState(0);
   const [videoProgress, setVideoProgress] = useState(0);
 
+  // History and UI states
   const [history, setHistory] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedHistoryItem, setSelectedHistoryItem] = useState(null);
-
-  // New UI-related states
   const [showTutorial, setShowTutorial] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-
   const [showClearHistoryModal, setShowClearHistoryModal] = useState(false);
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const [scanSpeed, setScanSpeed] = useState("balanced");
+  const [isFavoriteView, setIsFavoriteView] = useState(false);
+  const [sortBy, setSortBy] = useState("date");
+  const [sortOrder, setSortOrder] = useState("desc");
 
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
@@ -59,10 +67,14 @@ const FileUploader = () => {
 
   const saveToLocalHistory = (name, result, confidence) => {
     const newItem = {
+      id: Date.now(),
       name,
       result,
       confidence,
-      date: new Date().toLocaleString(),
+      date: new Date().toISOString(),
+      isFavorite: false,
+      scanType: name.split('.').pop().toLowerCase() === 'mp3' ? 'audio' : 
+               name.split('.').pop().toLowerCase() === 'mp4' ? 'video' : 'image'
     };
     const updated = [newItem, ...history];
     localStorage.setItem("uploadHistory", JSON.stringify(updated));
@@ -96,6 +108,7 @@ const FileUploader = () => {
 
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("scanSpeed", scanSpeed);
 
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "https://stegoshield-3ius.onrender.com/upload");
@@ -176,6 +189,85 @@ const FileUploader = () => {
       <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
     </div>
   );
+
+  // Toggle favorite status
+  const toggleFavorite = (id) => {
+    const updated = history.map(item => 
+      item.id === id ? { ...item, isFavorite: !item.isFavorite } : item
+    );
+    localStorage.setItem("uploadHistory", JSON.stringify(updated));
+    setHistory(updated);
+  };
+
+  // Filter and sort history
+  const filteredHistory = history
+    .filter(item => {
+      const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.result.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesTab = activeTab === "all" || 
+        (activeTab === "malicious" && item.result === "Malicious") || 
+        (activeTab === "safe" && item.result === "Safe");
+      const matchesFavorite = !isFavoriteView || item.isFavorite;
+      return matchesSearch && matchesTab && matchesFavorite;
+    })
+    .sort((a, b) => {
+      if (sortBy === "date") {
+        return sortOrder === "asc" 
+          ? new Date(a.date) - new Date(b.date) 
+          : new Date(b.date) - new Date(a.date);
+      } else if (sortBy === "name") {
+        return sortOrder === "asc" 
+          ? a.name.localeCompare(b.name) 
+          : b.name.localeCompare(a.name);
+      } else if (sortBy === "confidence") {
+        return sortOrder === "asc" 
+          ? a.confidence - b.confidence 
+          : b.confidence - a.confidence;
+      }
+      return 0;
+    });
+
+  // Clear history function
+  const clearAllHistory = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user?.id) {
+        toast.error("User not authenticated");
+        return;
+      }
+
+      const response = await fetch('https://stegoshield-3ius.onrender.com/api/history/all', {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ user_id: user.id }),
+      });
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        throw new Error(`Expected JSON but got: ${text.substring(0, 100)}`);
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to clear database history');
+      }
+
+      localStorage.removeItem("uploadHistory");
+      setHistory([]);
+      setSearchTerm("");
+      setShowClearHistoryModal(false);
+      toast.success("All history permanently deleted");
+    } catch (error) {
+      console.error("Clear history error:", error);
+      toast.error(error.message || "Failed to clear history");
+    }
+  };
 
   // Enhanced renderSection function with better UI
   const renderSection = (
@@ -282,6 +374,21 @@ const FileUploader = () => {
           </motion.div>
         )}
 
+        {showAdvancedOptions && (
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Scan Speed</label>
+            <select
+              value={scanSpeed}
+              onChange={(e) => setScanSpeed(e.target.value)}
+              className="w-full text-sm p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600"
+            >
+              <option value="fast">Fast (Basic Checks)</option>
+              <option value="balanced">Balanced (Recommended)</option>
+              <option value="thorough">Thorough (Deep Analysis)</option>
+            </select>
+          </div>
+        )}
+
         <button
           onClick={() => handleAnalyze(file, setResult, setProgress, setAnalyzing)}
           className={`w-full px-4 py-2 bg-[#113742] text-white rounded-md hover:bg-gray-900 transition flex items-center justify-center gap-2 ${analyzing ? "cursor-not-allowed opacity-70" : ""
@@ -358,55 +465,6 @@ const FileUploader = () => {
     );
   };
 
-  // Filter history based on search term
-  const filteredHistory = history.filter(item => {
-    return item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.result.toLowerCase().includes(searchTerm.toLowerCase());
-  });
-
-  // Clear history function
-  const clearAllHistory = async () => {
-    try {
-      const user = JSON.parse(localStorage.getItem("user"));
-      if (!user?.id) {
-        toast.error("User not authenticated");
-        return;
-      }
-
-      const response = await fetch('https://stegoshield-3ius.onrender.com/api/history/all', {
-        method: 'DELETE',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'  // Explicitly ask for JSON
-        },
-        body: JSON.stringify({ user_id: user.id }),
-      });
-
-      // First check if response is JSON
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        throw new Error(`Expected JSON but got: ${text.substring(0, 100)}`);
-      }
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to clear database history');
-      }
-
-      localStorage.removeItem("uploadHistory");
-      setHistory([]);
-      setSearchTerm("");
-      setShowClearHistoryModal(false);
-      toast.success("All history permanently deleted");
-    } catch (error) {
-      console.error("Clear history error:", error);
-      toast.error(error.message || "Failed to clear history");
-    }
-  };
-
   return (
     <>
       <Header />
@@ -445,6 +503,17 @@ const FileUploader = () => {
             </div>
           </div>
 
+          {/* Advanced Options Toggle */}
+          <div className="mb-6">
+            <button
+              onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+              className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300"
+            >
+              {showAdvancedOptions ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              Advanced Options
+            </button>
+          </div>
+
           {/* Main Analysis Sections */}
           <div className="flex flex-col md:flex-row items-start gap-6 mb-12">
             {renderSection(
@@ -459,7 +528,7 @@ const FileUploader = () => {
               setIsAnalyzingImage,
               imageProgress,
               isAnalyzingImage,
-              "image/*,.png,.jpg,.jpeg",
+              "image/*,.png,.jpg,.jpeg,.webp,.gif",
               "image"
             )}
             {renderSection(
@@ -474,7 +543,7 @@ const FileUploader = () => {
               setIsAnalyzingAudio,
               audioProgress,
               isAnalyzingAudio,
-              "audio/*,.mp3,.wav",
+              "audio/*,.mp3,.wav,.ogg,.flac,.aac",
               "audio"
             )}
             {renderSection(
@@ -489,7 +558,7 @@ const FileUploader = () => {
               setIsAnalyzingVideo,
               videoProgress,
               isAnalyzingVideo,
-              "video/*,.mp4,.mov",
+              "video/*,.mp4,.mov,.avi,.mkv,.webm",
               "video"
             )}
           </div>
@@ -502,7 +571,7 @@ const FileUploader = () => {
                   <History size={24} /> Scan History
                 </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {filteredHistory.length} items • Last scan: {history[0]?.date || "N/A"}
+                  {filteredHistory.length} items • Last scan: {history[0]?.date ? new Date(history[0].date).toLocaleString() : "N/A"}
                 </p>
               </div>
 
@@ -513,7 +582,7 @@ const FileUploader = () => {
                     placeholder="Search history..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 border rounded-lg w-full dark:bg-gray-800 dark:border-gray-700"
+                    className="pl-10 pr-4 py-2 border rounded-lg w-full dark:bg-gray-800 dark:border-gray-700 "
                   />
                   <svg
                     className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
@@ -531,14 +600,83 @@ const FileUploader = () => {
                   </svg>
                 </div>
 
-                <button
-                  onClick={() => setShowClearHistoryModal(true)}
-                  className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-400 rounded-lg transition"
-                  disabled={history.length === 0}
-                >
-                  Clear History
-                </button>
+                <div className="flex gap-2">
+                  <div className="relative">
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                      className="appearance-none pl-3 pr-8 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700 text-sm dark:text-gray-400"
+                    >
+                      <option value="date">Sort by Date</option>
+                      <option value="name">Sort by Name</option>
+                      <option value="confidence">Sort by Confidence</option>
+                    </select>
+                    <ChevronDown className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
+                  </div>
+
+                  <button
+                    onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                    className="px-3 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400"
+                  >
+                    {sortOrder === "asc" ? "↑" : "↓"}
+                  </button>
+
+                  <button
+                    onClick={() => setIsFavoriteView(!isFavoriteView)}
+                    className={`px-3 py-2 border rounded-lg flex items-center gap-1 ${isFavoriteView ? "bg-yellow-100 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-700" : "dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400"}`}
+                  >
+                    <Star size={16} className={isFavoriteView ? "text-yellow-500 fill-yellow-500" : ""} />
+                  </button>
+
+                  <button
+                    onClick={() => setShowClearHistoryModal(true)}
+                    className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-400 rounded-lg transition"
+                    disabled={history.length === 0}
+                  >
+                    Clear
+                  </button>
+                </div>
               </div>
+            </div>
+
+            {/* History Filter Tabs */}
+            <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+              <button
+                onClick={() => setActiveTab("all")}
+                className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${activeTab === "all" ? "bg-[#113742] text-white" : "bg-gray-200 dark:bg-gray-700 dark:text-gray-400"}`}
+              >
+                All Scans
+              </button>
+              <button
+                onClick={() => setActiveTab("safe")}
+                className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${activeTab === "safe" ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300" : "bg-gray-200 dark:bg-gray-700 dark:text-gray-400"}`}
+              >
+                Safe Files
+              </button>
+              <button
+                onClick={() => setActiveTab("malicious")}
+                className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${activeTab === "malicious" ? "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300" : "bg-gray-200 dark:bg-gray-700 dark:text-gray-400"}`}
+              >
+                Threats
+              </button>
+              <button
+                onClick={() => setActiveTab("image")}
+                className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${activeTab === "image" ? "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300" : "bg-gray-200 dark:bg-gray-700 dark:text-gray-400"}`}
+              >
+                Images
+              </button>
+              <button
+                onClick={() => setActiveTab("audio")}
+                className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${activeTab === "audio" ? "bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300" : "bg-gray-200 dark:bg-gray-700 dark:text-gray-400"}`}
+              >
+                Audio
+              </button>
+              <button
+                onClick={() => setActiveTab("video")}
+                className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${activeTab === "video" ? "bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300" : "bg-gray-200 dark:bg-gray-700 dark:text-gray-400"}`}
+              >
+                Videos
+              </button>
             </div>
 
             {filteredHistory.length > 0 ? (
@@ -548,23 +686,39 @@ const FileUploader = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.05 }}
-                    key={i}
+                    key={item.id}
                     onClick={() => {
-                      setSelectedHistoryItem(item);
+                      setSelectedHistoryItem({
+                        ...item,
+                        date: new Date(item.date).toLocaleString()
+                      });
                       setShowModal(true);
                     }}
-                    className={`cursor-pointer rounded-lg p-4 shadow-md border transition transform hover:scale-[1.01] ${item.result === "Malicious"
+                    className={`cursor-pointer rounded-lg p-4 shadow-md border transition transform hover:scale-[1.01] relative ${item.result === "Malicious"
                       ? "bg-red-50 dark:bg-red-900/30 border-red-300 dark:border-red-700 hover:shadow-red-300 dark:hover:shadow-red-900/50"
                       : "bg-green-50 dark:bg-green-900/30 border-green-300 dark:border-green-700 hover:shadow-green-300 dark:hover:shadow-green-900/50"
                       }`}
                   >
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(item.id);
+                      }}
+                      className="absolute top-16 right-5 z-10"
+                    >
+                      <Star
+                        size={18}
+                        className={item.isFavorite ? "text-yellow-500 fill-yellow-500" : "text-gray-400"}
+                      />
+                    </button>
+
                     <div className="flex justify-between items-start gap-2">
                       <div className="min-w-0">
                         <h4 className="text-md font-semibold text-gray-800 dark:text-white break-words">
                           {item.name}
                         </h4>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          {item.date}
+                          {new Date(item.date).toLocaleString()}
                         </p>
                       </div>
                       <span
@@ -581,6 +735,7 @@ const FileUploader = () => {
                       <div className="text-sm text-gray-600 dark:text-gray-400">
                         Confidence: {(item.confidence * 100).toFixed(2)}%
                       </div>
+                      
                     </div>
                   </motion.div>
                 ))}
@@ -591,7 +746,10 @@ const FileUploader = () => {
                   {searchTerm ? "No matching results found" : "Your scan history is empty"}
                 </p>
                 <button
-                  onClick={() => setSearchTerm("")}
+                  onClick={() => {
+                    setSearchTerm("");
+                    setActiveTab("all");
+                  }}
                   className="mt-2 text-indigo-600 dark:text-indigo-400 text-sm hover:underline"
                 >
                   {searchTerm ? "Clear search" : "Upload a file to get started"}
@@ -602,12 +760,18 @@ const FileUploader = () => {
         </div>
 
         {/* Help Button */}
-        <div className="fixed bottom-6 right-6">
+        <div className="fixed bottom-6 right-6 flex flex-col gap-3">
           <button
             onClick={() => setShowTutorial(true)}
             className="p-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-full shadow-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition"
           >
             <HelpCircle size={24} />
+          </button>
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="p-3 bg-[#113742] text-white rounded-full shadow-lg hover:bg-gray-900 transition"
+          >
+            <ChevronUp size={24} />
           </button>
         </div>
 
@@ -637,7 +801,7 @@ const FileUploader = () => {
                 </div>
                 <div className="flex justify-between border-b pb-2">
                   <span className="text-gray-500 dark:text-gray-400">Result:</span>
-                  <span className={`font-medium  ${selectedHistoryItem.result === "Malicious"
+                  <span className={`font-medium ${selectedHistoryItem.result === "Malicious"
                     ? "text-red-600 dark:text-red-400"
                     : "text-green-600 dark:text-green-400"
                     }`}>
@@ -648,6 +812,12 @@ const FileUploader = () => {
                   <span className="text-gray-500 dark:text-gray-400">Confidence:</span>
                   <span className="font-medium dark:text-gray-500">
                     {(selectedHistoryItem.confidence * 100).toFixed(2)}%
+                  </span>
+                </div>
+                <div className="flex justify-between border-b pb-2">
+                  <span className="text-gray-500 dark:text-gray-400">File Type:</span>
+                  <span className="font-medium dark:text-gray-500 capitalize">
+                    {selectedHistoryItem.scanType || selectedHistoryItem.name.split('.').pop()}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -686,7 +856,7 @@ const FileUploader = () => {
               </button>
 
               <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
-                StegoShield Analyzer
+                <span className="bg-gradient-to-r from-[#113742] to-[#8fbcc4] bg-clip-text text-transparent">StegoShield Analyzer</span>
               </h3>
 
               <div className="space-y-4">
@@ -697,7 +867,7 @@ const FileUploader = () => {
                   <div>
                     <h4 className="font-medium text-gray-800 dark:text-white">Upload Files</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Drag and drop files into the designated zones or click to browse.
+                      Drag and drop files into the designated zones or click to browse. Supports images, audio, and video files.
                     </p>
                   </div>
                 </div>
@@ -709,7 +879,7 @@ const FileUploader = () => {
                   <div>
                     <h4 className="font-medium text-gray-800 dark:text-white">Analyze Content</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Click the "Analyze" button to scan for hidden data or anomalies.
+                      Click the "Analyze" button to scan for hidden data, watermarks, or anomalies using advanced steganography detection.
                     </p>
                   </div>
                 </div>
@@ -721,7 +891,19 @@ const FileUploader = () => {
                   <div>
                     <h4 className="font-medium text-gray-800 dark:text-white">Review Results</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Results will indicate if the file is clean or potentially malicious.
+                      Results will indicate if the file is clean or potentially malicious with a confidence percentage.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="bg-yellow-100 dark:bg-yellow-900/50 p-2 rounded-full flex-shrink-0">
+                    <Star size={20} className="text-yellow-600 dark:text-yellow-300" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-800 dark:text-white">History & Favorites</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      All scans are saved in your history. Mark important scans as favorites for quick access later.
                     </p>
                   </div>
                 </div>
@@ -730,8 +912,9 @@ const FileUploader = () => {
               <div className="mt-6 pt-4 border-t flex justify-center">
                 <button
                   onClick={() => setShowTutorial(false)}
-                  className="px-4 py-2 bg-[#113742] text-white rounded-lg hover:bg-gray-900 transition "
+                  className="px-4 py-2 bg-[#113742] text-white rounded-lg hover:bg-gray-900 transition flex items-center gap-2"
                 >
+                  <Zap size={18} />
                   Get Started
                 </button>
               </div>
@@ -775,8 +958,9 @@ const FileUploader = () => {
                 </button>
                 <button
                   onClick={clearAllHistory}
-                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition flex items-center gap-2"
                 >
+                  <Trash2 size={18} />
                   Delete Permanently
                 </button>
               </div>
@@ -789,4 +973,4 @@ const FileUploader = () => {
   );
 };
 
-export default FileUploader;
+export default FileUpload;

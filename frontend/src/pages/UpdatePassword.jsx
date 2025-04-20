@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import { Lock, Key, ArrowLeft, CheckCircle } from "lucide-react";
+import { Lock, Key, ArrowLeft, CheckCircle, Eye, EyeOff } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -12,6 +12,8 @@ const UpdatePassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -54,6 +56,32 @@ const UpdatePassword = () => {
     }
     setLoading(false);
   };
+
+  // Password strength calculator
+  const calculatePasswordStrength = (password) => {
+    if (!password) return 0;
+    
+    let strength = 0;
+    // Length contributes up to 40%
+    strength += Math.min(password.length / 10, 0.4);
+    
+    // Has uppercase letters
+    if (/[A-Z]/.test(password)) strength += 0.2;
+    
+    // Has numbers
+    if (/[0-9]/.test(password)) strength += 0.2;
+    
+    // Has special characters
+    if (/[^A-Za-z0-9]/.test(password)) strength += 0.2;
+    
+    return Math.min(strength, 1); // Cap at 1 (100%)
+  };
+
+  const passwordStrength = calculatePasswordStrength(newPassword);
+  const strengthColor = passwordStrength < 0.4 ? "red" : 
+                       passwordStrength < 0.7 ? "orange" : "green";
+  const strengthText = passwordStrength < 0.4 ? "Weak" : 
+                      passwordStrength < 0.7 ? "Moderate" : "Strong";
 
   return (
     <div className="flex flex-col min-h-screen bg-blue-50 dark:bg-gray-900">
@@ -98,15 +126,39 @@ const UpdatePassword = () => {
                       </div>
                       <input
                         id="newPassword"
-                        type="password"
-                        className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:text-white"
+                        type={showNewPassword ? "text" : "password"}
+                        className="block w-full pl-10 pr-10 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:text-white"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         placeholder="Enter new password"
                         required
                         minLength="6"
                       />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                      >
+                        {showNewPassword ? (
+                          <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                        ) : (
+                          <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                        )}
+                      </button>
                     </div>
+                    {newPassword && (
+                      <div className="mt-2">
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full bg-${strengthColor}-500`}
+                            style={{ width: `${passwordStrength * 100}%` }}
+                          ></div>
+                        </div>
+                        <p className={`text-xs mt-1 text-${strengthColor}-600 dark:text-${strengthColor}-400`}>
+                          Password strength: {strengthText}
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <div>
@@ -119,14 +171,25 @@ const UpdatePassword = () => {
                       </div>
                       <input
                         id="confirmPassword"
-                        type="password"
-                        className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:text-white"
+                        type={showConfirmPassword ? "text" : "password"}
+                        className="block w-full pl-10 pr-10 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:text-white"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         placeholder="Confirm new password"
                         required
                         minLength="6"
                       />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                        ) : (
+                          <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                        )}
+                      </button>
                     </div>
                   </div>
 
