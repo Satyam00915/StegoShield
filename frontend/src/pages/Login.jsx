@@ -21,7 +21,7 @@ const Login = () => {
         setLoading(true);
 
         try {
-            const res = await fetch("http://stegoshield-3ius.onrender.com/login", {
+            const res = await fetch("https://stegoshield-3ius.onrender.com/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),

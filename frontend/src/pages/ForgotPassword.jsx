@@ -21,7 +21,7 @@ const ForgotPassword = () => {
 
     setLoading(true);
     try {
-      const res = await axios.post("http://stegoshield-3ius.onrender.com/api/send-otp", { email });
+      const res = await axios.post("https://stegoshield-3ius.onrender.com/api/send-otp", { email });
       if (res.data.success) {
         toast.success("OTP sent to your email");
         setOtpSent(true);
@@ -53,7 +53,7 @@ const ForgotPassword = () => {
 
     setLoading(true);
     try {
-      const res = await axios.post("http://stegoshield-3ius.onrender.com/api/verify-otp", {
+      const res = await axios.post("https://stegoshield-3ius.onrender.com/api/verify-otp", {
         email,
         otp: fullOtp,
       });

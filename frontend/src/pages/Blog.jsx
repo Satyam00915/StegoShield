@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 import {
@@ -21,6 +21,14 @@ import {
   Terminal,
   Shield,
   FileCode,
+  Search,
+  X,
+  Bookmark,
+  Share2,
+  Heart,
+  BookOpen,
+  ArrowLeft,
+  ArrowUp,
 } from "lucide-react";
 import BlogDetail from "../components/BlogDetail";
 
@@ -36,7 +44,12 @@ const blogsData = [
     readTime: "5 min read",
     category: "Fundamentals",
     author: "Dr. Sarah Chen",
-    authorRole: "Security Researcher"
+    authorRole: "Security Researcher",
+    likes: 42,
+    bookmarks: 18,
+    views: 256,
+    isBookmarked: false,
+    isLiked: false
   },
   {
     id: 2,
@@ -48,7 +61,12 @@ const blogsData = [
     readTime: "7 min read",
     category: "Fundamentals",
     author: "Prof. James Wilson",
-    authorRole: "Cryptography Historian"
+    authorRole: "Cryptography Historian",
+    likes: 38,
+    bookmarks: 12,
+    views: 198,
+    isBookmarked: false,
+    isLiked: false
   },
   {
     id: 3,
@@ -60,7 +78,12 @@ const blogsData = [
     readTime: "6 min read",
     category: "Fundamentals",
     author: "Alex Morgan",
-    authorRole: "Security Analyst"
+    authorRole: "Security Analyst",
+    likes: 56,
+    bookmarks: 22,
+    views: 312,
+    isBookmarked: false,
+    isLiked: false
   },
 
   // AI Research
@@ -74,7 +97,12 @@ const blogsData = [
     readTime: "8 min read",
     category: "AI Research",
     author: "Dr. Emily Zhang",
-    authorRole: "AI Specialist"
+    authorRole: "AI Specialist",
+    likes: 89,
+    bookmarks: 45,
+    views: 521,
+    isBookmarked: false,
+    isLiked: false
   },
   {
     id: 5,
@@ -86,7 +114,12 @@ const blogsData = [
     readTime: "10 min read",
     category: "AI Research",
     author: "Dr. Raj Patel",
-    authorRole: "AI Researcher"
+    authorRole: "AI Researcher",
+    likes: 76,
+    bookmarks: 38,
+    views: 487,
+    isBookmarked: false,
+    isLiked: false
   },
 
   // Case Studies
@@ -100,7 +133,12 @@ const blogsData = [
     readTime: "6 min read",
     category: "Case Studies",
     author: "Mark Johnson",
-    authorRole: "Threat Intelligence Analyst"
+    authorRole: "Threat Intelligence Analyst",
+    likes: 65,
+    bookmarks: 29,
+    views: 402,
+    isBookmarked: false,
+    isLiked: false
   },
   {
     id: 7,
@@ -112,7 +150,12 @@ const blogsData = [
     readTime: "9 min read",
     category: "Case Studies",
     author: "Lisa Wong",
-    authorRole: "Malware Analyst"
+    authorRole: "Malware Analyst",
+    likes: 72,
+    bookmarks: 31,
+    views: 435,
+    isBookmarked: false,
+    isLiked: false
   },
 
   // Techniques
@@ -126,7 +169,12 @@ const blogsData = [
     readTime: "7 min read",
     category: "Techniques",
     author: "Lisa Rodriguez",
-    authorRole: "Forensic Analyst"
+    authorRole: "Forensic Analyst",
+    likes: 48,
+    bookmarks: 19,
+    views: 287,
+    isBookmarked: false,
+    isLiked: false
   },
   {
     id: 9,
@@ -138,7 +186,12 @@ const blogsData = [
     readTime: "12 min read",
     category: "Techniques",
     author: "Dr. Michael Brown",
-    authorRole: "Data Scientist"
+    authorRole: "Data Scientist",
+    likes: 53,
+    bookmarks: 24,
+    views: 321,
+    isBookmarked: false,
+    isLiked: false
   },
 
   // Technology
@@ -152,7 +205,12 @@ const blogsData = [
     readTime: "10 min read",
     category: "Technology",
     author: "StegoShield Team",
-    authorRole: "Engineering"
+    authorRole: "Engineering",
+    likes: 94,
+    bookmarks: 47,
+    views: 589,
+    isBookmarked: false,
+    isLiked: false
   },
   {
     id: 11,
@@ -164,7 +222,12 @@ const blogsData = [
     readTime: "11 min read",
     category: "Technology",
     author: "Sarah Kim",
-    authorRole: "Systems Architect"
+    authorRole: "Systems Architect",
+    likes: 81,
+    bookmarks: 39,
+    views: 512,
+    isBookmarked: false,
+    isLiked: false
   },
 
   // Analysis
@@ -178,7 +241,12 @@ const blogsData = [
     readTime: "9 min read",
     category: "Analysis",
     author: "Dr. Alan Turing",
-    authorRole: "Senior Researcher"
+    authorRole: "Senior Researcher",
+    likes: 67,
+    bookmarks: 28,
+    views: 398,
+    isBookmarked: false,
+    isLiked: false
   },
   {
     id: 13,
@@ -190,8 +258,14 @@ const blogsData = [
     readTime: "8 min read",
     category: "Analysis",
     author: "Dr. Priya Singh",
-    authorRole: "Research Director"
-  }
+    authorRole: "Research Director",
+    likes: 78,
+    bookmarks: 36,
+    views: 467,
+    isBookmarked: false,
+    isLiked: false
+  },
+  
 ];
 
 const categories = ["All", ...new Set(blogsData.map(blog => blog.category))];
@@ -203,23 +277,60 @@ const Blog = () => {
   const [filteredBlogs, setFilteredBlogs] = useState(blogsData);
   const [selectedBlog, setSelectedBlog] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
+  const [blogs, setBlogs] = useState(blogsData);
+  const searchInputRef = useRef(null);
 
   useEffect(() => {
     if (!localStorage.getItem("user")) {
       toast.error("You need to be logged in to access this page.");
       navigate("/login");
     }
+
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setShowScrollToTop(true);
+      } else {
+        setShowScrollToTop(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [isLoggedIn]);
 
   useEffect(() => {
-    if (selectedCategory === "All") {
-      setFilteredBlogs(blogsData);
-    } else {
-      setFilteredBlogs(blogsData.filter(blog => blog.category === selectedCategory));
+    let result = blogsData;
+    
+    if (selectedCategory !== "All") {
+      result = result.filter(blog => blog.category === selectedCategory);
     }
-  }, [selectedCategory]);
+    
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        blog =>
+          blog.title.toLowerCase().includes(query) ||
+          blog.summary.toLowerCase().includes(query) ||
+          blog.content.toLowerCase().includes(query) ||
+          blog.author.toLowerCase().includes(query)
+      );
+    }
+    
+    setFilteredBlogs(result);
+  }, [selectedCategory, searchQuery]);
 
   const handleReadMore = (blog) => {
+    // Increment views when opening a blog
+    const updatedBlogs = blogs.map(b => 
+      b.id === blog.id ? { ...b, views: b.views + 1 } : b
+    );
+    setBlogs(updatedBlogs);
+    setFilteredBlogs(updatedBlogs.filter(b => 
+      selectedCategory === "All" || b.category === selectedCategory
+    ));
+    
     setSelectedBlog(blog);
     setIsModalOpen(true);
     document.body.style.overflow = 'hidden';
@@ -231,8 +342,72 @@ const Blog = () => {
     document.body.style.overflow = 'auto';
   };
 
+  const handleBookmark = (id, e) => {
+    e.stopPropagation();
+    const updatedBlogs = blogs.map(blog => {
+      if (blog.id === id) {
+        return {
+          ...blog,
+          isBookmarked: !blog.isBookmarked,
+          bookmarks: blog.isBookmarked ? blog.bookmarks - 1 : blog.bookmarks + 1
+        };
+      }
+      return blog;
+    });
+    setBlogs(updatedBlogs);
+    setFilteredBlogs(updatedBlogs.filter(b => 
+      selectedCategory === "All" || b.category === selectedCategory
+    ));
+    
+    if (selectedBlog?.id === id) {
+      setSelectedBlog(updatedBlogs.find(blog => blog.id === id));
+    }
+    
+    toast.success(
+      updatedBlogs.find(blog => blog.id === id).isBookmarked 
+        ? "Article bookmarked!" 
+        : "Bookmark removed"
+    );
+  };
+
+  const handleLike = (id, e) => {
+    e.stopPropagation();
+    const updatedBlogs = blogs.map(blog => {
+      if (blog.id === id) {
+        return {
+          ...blog,
+          isLiked: !blog.isLiked,
+          likes: blog.isLiked ? blog.likes - 1 : blog.likes + 1
+        };
+      }
+      return blog;
+    });
+    setBlogs(updatedBlogs);
+    setFilteredBlogs(updatedBlogs.filter(b => 
+      selectedCategory === "All" || b.category === selectedCategory
+    ));
+    
+    if (selectedBlog?.id === id) {
+      setSelectedBlog(updatedBlogs.find(blog => blog.id === id));
+    }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+
+  const clearSearch = () => {
+    setSearchQuery("");
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-blue-50 dark:bg-gray-900 ">
+    <div className="min-h-screen bg-blue-50 dark:bg-gray-900">
       <Header />
       <motion.div
         className="py-10 px-4 sm:px-6"
@@ -259,24 +434,68 @@ const Blog = () => {
             </p>
           </motion.div>
 
-          <div className="flex mb-8 overflow-x-auto pb-2 scrollbar-hide">
-            <div className="flex space-x-2">
-              {categories.map((category) => (
+          {/* Search and Filter Section */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+            <div className="flex overflow-x-auto pb-2 scrollbar-hide w-full sm:w-auto">
+              <div className="flex space-x-2">
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    className={`px-4 py-2 text-sm font-medium rounded-full whitespace-nowrap transition-colors ${
+                      category === selectedCategory
+                        ? "bg-[#0e4f63] text-white"
+                        : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative w-full sm:w-64">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Search articles..."
+                className="block w-full pl-10 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#0e4f63] focus:border-transparent"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              {searchQuery && (
                 <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`px-4 py-2 text-sm font-medium rounded-full whitespace-nowrap transition-colors ${
-                    category === selectedCategory
-                      ? "bg-[#0e4f63] text-white"
-                      : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  }`}
+                  onClick={clearSearch}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
                 >
-                  {category}
+                  <X className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Popular Topics */}
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">
+              Popular Topics
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {["Steganalysis", "AI Detection", "Malware", "Forensics", "Encryption", "Cyber Threats"].map((topic) => (
+                <button
+                  key={topic}
+                  onClick={() => setSearchQuery(topic)}
+                  className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                >
+                  {topic}
                 </button>
               ))}
             </div>
           </div>
 
+          {/* Blog Grid */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredBlogs.map((blog) => (
               <motion.div
@@ -312,9 +531,30 @@ const Blog = () => {
                     </p>
                   </div>
                   <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {blog.date}
-                    </span>
+                    <div className="flex items-center space-x-3">
+                      <button 
+                        onClick={(e) => handleLike(blog.id, e)}
+                        className="flex items-center text-xs text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                      >
+                        <Heart 
+                          className={`w-4 h-4 mr-1 ${blog.isLiked ? 'fill-red-500 text-red-500 dark:fill-red-400 dark:text-red-400' : ''}`} 
+                        />
+                        {blog.likes}
+                      </button>
+                      <button 
+                        onClick={(e) => handleBookmark(blog.id, e)}
+                        className="flex items-center text-xs text-gray-500 dark:text-gray-400 hover:text-[#0e4f63] dark:hover:text-gray-300 transition-colors"
+                      >
+                        <Bookmark 
+                          className={`w-4 h-4 mr-1 ${blog.isBookmarked ? 'fill-[#0e4f63] text-[#0e4f63] dark:fill-gray-400 dark:text-gray-400' : ''}`} 
+                        />
+                        {blog.bookmarks}
+                      </button>
+                      <span className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                        <Eye className="w-4 h-4 mr-1" />
+                        {blog.views}
+                      </span>
+                    </div>
                     <button 
                       onClick={() => handleReadMore(blog)}
                       className="flex items-center text-sm font-medium text-[#0e4f63] dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300 transition-colors"
@@ -331,16 +571,42 @@ const Blog = () => {
           {filteredBlogs.length === 0 && (
             <div className="text-center py-12">
               <h3 className="text-xl font-medium text-gray-600 dark:text-gray-400">
-                No articles found in this category
+                No articles found matching your criteria
               </h3>
               <button
-                onClick={() => setSelectedCategory("All")}
+                onClick={() => {
+                  setSelectedCategory("All");
+                  setSearchQuery("");
+                }}
                 className="mt-4 text-indigo-600 dark:text-indigo-400 hover:underline"
               >
                 View all articles
               </button>
             </div>
           )}
+
+          {/* Newsletter Subscription */}
+          <div className="mt-16 bg-gradient-to-r from-[#0e4f63] to-[#34737e] dark:from-gray-800 dark:to-gray-700 rounded-xl p-8 text-white">
+            <div className="max-w-2xl mx-auto text-center">
+              <h3 className="text-2xl font-bold mb-2">Stay Updated</h3>
+              <p className="mb-6 opacity-90">
+                Subscribe to our newsletter for the latest articles, research, and security insights.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
+                <input
+                  type="email"
+                  placeholder="Your email address"
+                  className="flex-grow px-4 py-2 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
+                />
+                <button className="px-6 py-2 bg-white text-[#0e4f63] font-semibold rounded-lg hover:bg-gray-100 transition-colors">
+                  Subscribe
+                </button>
+              </div>
+              <p className="text-xs opacity-70 mt-3">
+                We respect your privacy. Unsubscribe at any time.
+              </p>
+            </div>
+          </div>
 
           <motion.div
             className="mt-20 text-center"
@@ -370,10 +636,30 @@ const Blog = () => {
         </div>
       </motion.div>
 
+      {/* Scroll to Top Button */}
+      {showScrollToTop && (
+        <motion.button
+          onClick={scrollToTop}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed bottom-6 right-6 p-3 bg-[#0e4f63] text-white rounded-full shadow-lg hover:bg-[#113742] transition-colors z-50"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <ArrowUp className="w-5 h-5" />
+        </motion.button>
+      )}
+
       {/* Blog Detail Modal */}
       <AnimatePresence>
         {isModalOpen && selectedBlog && (
-          <BlogDetail blog={selectedBlog} onClose={closeModal} />
+          <BlogDetail 
+            blog={selectedBlog} 
+            onClose={closeModal} 
+            onBookmark={handleBookmark}
+            onLike={handleLike}
+          />
         )}
       </AnimatePresence>
 
