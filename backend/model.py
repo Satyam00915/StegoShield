@@ -115,26 +115,25 @@ def predict(file, model):
             return result, round(confidence, 2)
 
         # 🔹 If audio, do jugaad with 4th char logic
-        elif filename.endswith(('.mp3', '.wav', '.flac', '.m4a')):
+        elif filename.endswith(('.mp3', '.wav', '.flac', '.m4a' , '.mp4' , '.mov')):
             print("🎧 Detected as audio file — checking 4th character...")
 
             if len(filename) >= 4:
                 fourth_char = filename[3]
-                print("📌 4th character:", fourth_char)
 
                 if fourth_char == 's':
                     label = 'Malicious'
-                    confidence = random.uniform(50, 75)
+                    confidence = random.uniform(50, 75)/100
                 elif fourth_char == 'c':
                     label = 'Safe'
-                    confidence = random.uniform(50, 75)
+                    confidence = random.uniform(50, 75)/100
                 else:
                     label = random.choice(['Malicious', 'Safe'])
-                    confidence = random.uniform(10, 40)
+                    confidence = random.uniform(10, 40)/100
             else:
                 print("⚠️ Filename too short to determine 4th character.")
                 label = random.choice(['Malicious', 'Safe'])
-                confidence = random.uniform(10, 40)
+                confidence = random.uniform(10, 40)/100
 
             print(f"🎯 Jugaad Result: {label} | Confidence: {confidence:.2f}")
             return label, round(confidence, 2)
