@@ -148,7 +148,7 @@ const Signup = () => {
                                 name="name"
                                 id="name"
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none
+                                className="w-full px-4 py-3 border border-gray-300 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-gray-500 focus:outline-none
                                           lg:py-4 lg:text-base 2xl:py-5 2xl:text-lg"
                                 placeholder="John Doe"
                             />
@@ -164,7 +164,7 @@ const Signup = () => {
                                 name="email"
                                 id="email"
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none
+                                className="w-full px-4 py-3 border border-gray-300 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-gray-500 focus:outline-none
                                           lg:py-4 lg:text-base 2xl:py-5 2xl:text-lg"
                                 placeholder="you@example.com"
                             />
@@ -180,7 +180,7 @@ const Signup = () => {
                                 name="password"
                                 id="password"
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 pr-12 border border-gray-300 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none
+                                className="w-full px-4 py-3 pr-12 border border-gray-300 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-gray-500 focus:outline-none
                                           lg:py-4 lg:text-base 2xl:py-5 2xl:text-lg"
                                 placeholder="••••••••"
                             />
@@ -190,8 +190,8 @@ const Signup = () => {
                                 className="absolute top-[38px] right-3 pr-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300
                                           lg:top-[42px] lg:right-4 2xl:top-[50px] 2xl:right-5"
                             >
-                                {showPassword ? <EyeOff size={24} className="lg:w-6 lg:h-6 2xl:w-7 2xl:h-7" /> :
-                                    <Eye size={24} className="lg:w-6 lg:h-6 2xl:w-7 2xl:h-7" />}
+                                {showPassword ? <EyeOff size={24} className="lg:w-6 lg:h-8 2xl:w-7 2xl:h-7" /> :
+                                    <Eye size={24} className="lg:w-6 lg:h-8 2xl:w-7 2xl:h-7" />}
                             </button>
                         </div>
 
@@ -205,7 +205,7 @@ const Signup = () => {
                                 name="confirmPassword"
                                 id="confirmPassword"
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 pr-12 border border-gray-300 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none
+                                className="w-full px-4 py-3 pr-12 border border-gray-300 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-gray-500 focus:outline-none
                                           lg:py-4 lg:text-base 2xl:py-5 2xl:text-lg"
                                 placeholder="••••••••"
                             />
@@ -215,8 +215,8 @@ const Signup = () => {
                                 className="absolute top-[38px] right-3 pr-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300
                                           lg:top-[42px] lg:right-4 2xl:top-[50px] 2xl:right-5"
                             >
-                                {showConfirmPassword ? <EyeOff size={24} className="lg:w-6 lg:h-6 2xl:w-7 2xl:h-7" /> :
-                                    <Eye size={24} className="lg:w-6 lg:h-6 2xl:w-7 2xl:h-7" />}
+                                {showConfirmPassword ? <EyeOff size={24} className="lg:w-6 lg:h-8 2xl:w-7 2xl:h-7" /> :
+                                    <Eye size={24} className="lg:w-6 lg:h-8 2xl:w-7 2xl:h-7" />}
                             </button>
                         </div>
 

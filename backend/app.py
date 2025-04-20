@@ -17,6 +17,16 @@ import cloudinary_config
 from datetime import datetime
 import os
 from werkzeug.utils import secure_filename
+import smtplib
+import random
+from email.message import EmailMessage
+from dotenv import load_dotenv
+
+load_dotenv()
+
+EMAIL_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_PASS = os.getenv("EMAIL_HOST_PASSWORD")
+otp_store = {}
 
 generate_config_file()
 
@@ -561,6 +571,58 @@ def clear_all_history():
     finally:
         cursor.close()
         conn.close()
+
+# --------------------- PASSWORD RESET ---------------------
+
+@app.route("/api/send-otp", methods=["POST"])
+def send_otp():
+    data = request.get_json()
+    email = data.get("email")
+
+    print("Received email for OTP:", email)  # Add this
+
+    if not email:
+        return jsonify({"success": False, "message": "Email is required"}), 400
+
+    otp = f"{random.randint(1000, 9999)}"
+    otp_store[email] = otp
+    print("Generated OTP:", otp)  # Add this
+
+    try:
+        msg = EmailMessage()
+        msg["Subject"] = "Your OTP for Password Reset"
+        msg["From"] = EMAIL_USER
+        msg["To"] = email
+        msg.set_content(f"Your OTP code is: {otp}")
+
+        print("Trying to send email...")  # Add this
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+            smtp.login(EMAIL_USER, EMAIL_PASS)
+            smtp.send_message(msg)
+
+        print("OTP sent successfully!")  # Add this
+        return jsonify({"success": True, "message": "OTP sent successfully"})
+
+    except Exception as e:
+        print("Error sending OTP:", e)  # 👈 This will show the actual error
+        return jsonify({"success": False, "message": "Failed to send OTP"}), 500
+
+@app.route("/api/verify-otp", methods=["POST"])
+def verify_otp():
+    data = request.get_json()
+    email = data.get("email")
+    otp_input = data.get("otp")
+
+    real_otp = otp_store.get(email)
+
+    if real_otp and otp_input == real_otp:
+        token = f"{random.randint(100000, 999999)}"  # In production, use JWT
+        session[f"reset_token_{email}"] = token
+        del otp_store[email]
+        return jsonify({"success": True, "token": token})
+
+    return jsonify({"success": False, "message": "Invalid or expired OTP"}), 400
 
 # --------------------- FRONTEND ROUTING FALLBACK ---------------------
 
