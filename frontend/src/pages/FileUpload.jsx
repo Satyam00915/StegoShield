@@ -558,9 +558,9 @@ const FileUploader = () => {
                       : "bg-green-50 dark:bg-green-900/30 border-green-300 dark:border-green-700 hover:shadow-green-300 dark:hover:shadow-green-900/50"
                       }`}
                   >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h4 className="text-md font-semibold text-gray-800 dark:text-white truncate">
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="min-w-0">
+                        <h4 className="text-md font-semibold text-gray-800 dark:text-white break-words">
                           {item.name}
                         </h4>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -568,7 +568,7 @@ const FileUploader = () => {
                         </p>
                       </div>
                       <span
-                        className={`text-xs px-2 py-1 rounded-full ${item.result === "Malicious"
+                        className={`text-xs px-2 py-1 rounded-full flex-shrink-0 ${item.result === "Malicious"
                           ? "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300"
                           : "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300"
                           }`}
@@ -775,7 +775,6 @@ const FileUploader = () => {
                 </button>
                 <button
                   onClick={clearAllHistory}
-
                   className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
                 >
                   Delete Permanently

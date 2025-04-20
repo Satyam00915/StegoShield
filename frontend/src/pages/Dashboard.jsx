@@ -271,7 +271,7 @@ const Dashboard = () => {
             <button
               onClick={exportHistory}
               disabled={isExporting || filteredHistory.length === 0}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-gray-700 hover:bg-blue-200 dark:hover:bg-gray-600 rounded-lg transition"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-100 dark:text-gray-400 dark:bg-gray-700 hover:bg-blue-200 dark:hover:bg-gray-600 rounded-lg transition"
             >
               {isExporting ? (
                 <span className="flex items-center gap-2">
