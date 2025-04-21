@@ -79,9 +79,10 @@ firebase_admin.initialize_app(cred)
 # Load model once at startup
 #model = load_model()
 
-@app.route('/ping')
+@app.route("/ping", methods=["GET"])
 def ping():
-    return "Pong!", 200
+    return {"status": "ok", "message": "StegoShield backend is alive 🎯"}, 200
+
 
 # --------------------- DATABASE TEST ROUTE ---------------------
 
