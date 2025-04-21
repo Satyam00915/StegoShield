@@ -477,7 +477,16 @@ def detect():
     file = request.files['file']
     filename = secure_filename(file.filename)
     filetype = filename.rsplit('.', 1)[-1].lower()
-    print(filetype)
+    
+    # Get file size from the uploaded file
+    file_size = request.content_length  # This gets the size in bytes
+    if file_size is None:
+        # Fallback method if content_length isn't available
+        file.seek(0, os.SEEK_END)
+        file_size = file.tell()
+        file.seek(0)  # Reset file pointer
+
+    print(f"DEBUG: Uploading {filename} (Type: {filetype}, Size: {file_size} bytes)")
 
     try:
         # 🔹 Upload file to Cloudinary
@@ -494,19 +503,19 @@ def detect():
         result, confidence = predict(file, model=app.model)
         print("Prediction result:", result, "Confidence:", confidence)
 
-        # 🔹 Save results to DB
+        # 🔹 Save results to DB with file_size
         conn = get_connection()
         cursor = conn.cursor()
 
         cursor.execute("""
-            INSERT INTO results (filename, prediction, confidence, user_id, file_url)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (filename, result, confidence, session['user_id'], file_url))
+            INSERT INTO results (filename, prediction, confidence, user_id, file_url, file_size)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (filename, result, confidence, session['user_id'], file_url, file_size))
 
         cursor.execute("""
-            INSERT INTO uploads (filename, filetype, result, file_url, user_id)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (filename, filetype, result, file_url, session['user_id']))
+            INSERT INTO uploads (filename, filetype, result, file_url, user_id, file_size)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (filename, filetype, result, file_url, session['user_id'], file_size))
 
         conn.commit()
         cursor.close()
@@ -516,7 +525,8 @@ def detect():
             "result": result,
             "confidence": confidence,
             "file_url": file_url,
-            "filename": filename
+            "filename": filename,
+            "file_size": file_size  # Include file size in response
         })
 
     except Exception as e:

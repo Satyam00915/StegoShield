@@ -561,7 +561,7 @@ const Dashboard = () => {
                               {item.name.length > 30 ? `${item.name.substring(0, 30)}...` : item.name}
                             </div>
                             <div className="text-sm text-gray-500 dark:text-gray-400">
-                              {(item.size / 1024).toFixed(2)} KB
+                            {item.file_size ? `${(item.file_size / 1024).toFixed(2)} KB` : 'Size unavailable'}
                             </div>
                           </div>
                         </div>
@@ -677,7 +677,7 @@ const Dashboard = () => {
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600 dark:text-gray-300">File Size:</span>
-                      <span className="font-medium">{(selectedFile.size / 1024).toFixed(2)} KB</span>
+                      <span className="font-medium">{selectedFile.file_size ? `${(selectedFile.file_size / 1024).toFixed(2)} KB` : 'Size unavailable'}</span>
                     </div>
                   </div>
                 </div>

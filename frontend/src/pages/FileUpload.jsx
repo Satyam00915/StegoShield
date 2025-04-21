@@ -65,12 +65,13 @@ const FileUpload = () => {
     }
   }, [isLoggedIn]);
 
-  const saveToLocalHistory = (name, result, confidence) => {
+  const saveToLocalHistory = (name, result, confidence, fileSize) => {
     const newItem = {
       id: Date.now(),
       name,
       result,
       confidence,
+      file_size: fileSize, // Add file size
       date: new Date().toISOString(),
       isFavorite: false,
       scanType: name.split('.').pop().toLowerCase() === 'mp3' ? 'audio' : 
@@ -109,6 +110,7 @@ const FileUpload = () => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("scanSpeed", scanSpeed);
+    formData.append("file_size", file.size);
 
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "https://stegoshield-3ius.onrender.com/upload");

@@ -135,3 +135,25 @@ BEGIN
         ALTER TABLE uploads ADD COLUMN user_id INTEGER REFERENCES users(id);
     END IF;
 END$$;
+
+-- Add file_size to results if not exists
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name='results' AND column_name='file_size'
+    ) THEN
+        ALTER TABLE results ADD COLUMN file_size BIGINT;
+    END IF;
+END$$;
+
+-- Add file_size to uploads if not exists
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name='uploads' AND column_name='file_size'
+    ) THEN
+        ALTER TABLE uploads ADD COLUMN file_size BIGINT;
+    END IF;
+END$$;
