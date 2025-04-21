@@ -22,7 +22,7 @@ const HeroSection = () => {
           <div className="w-full max-w-xl 2xl:max-w-2xl space-y-6">
             <a
               href="/login"
-              className="inline-flex gap-x-2 items-center text-sm font-medium border border-indigo-200 px-3 py-1.5 dark:text-gray-400 rounded-full hover:bg-white dark:hover:bg-gray-800 transition hover:shadow-md group"
+              className="inline-flex gap-x-2 items-center text-sm font-medium border border-indigo-200 px-3 py-1.5  text-gray-600 dark:text-gray-400 rounded-full hover:bg-white dark:hover:bg-gray-800 transition hover:shadow-md group"
             >
               AI Powered Steganography Detection
               <svg 
@@ -38,7 +38,7 @@ const HeroSection = () => {
               Protecting Your Data, <span className="text-[#0e4f63]">One Pixel at a Time</span>
             </h1>
             
-            <p className="text-gray-400 text-lg 2xl:text-xl">
+            <p className="dark:text-gray-400 text-gray-600 text-lg 2xl:text-xl">
               StegoShield detects hidden payloads inside everyday media files — images, audio, and video — using cutting-edge AI.
             </p>
             
@@ -61,7 +61,7 @@ const HeroSection = () => {
             </div>
             
             {/* Trust indicators */}
-            <div className="pt-4 flex flex-col sm:flex-row items-center gap-4 text-sm 2xl:text-base text-gray-400">
+            <div className="pt-4 flex flex-col sm:flex-row items-center gap-4 text-sm 2xl:text-base dark:text-gray-400 text-gray-600">
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
                   <img 

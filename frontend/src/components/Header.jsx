@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import logo from "../assets/logo.png";
+import darkLogo from "../assets/dark_logo.png";
 import "./landing.css";
 import { useAuth } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
@@ -8,16 +9,22 @@ import DarkModeToggle from "./DarkModeToggle";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isLoggedIn, setIsLoggedIn } = useAuth();
+  const [Logo, setLogo] = useState(logo);
+  const { isLoggedIn, setIsLoggedIn, modeToggled } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (localStorage.getItem("theme") === "dark") {
+      setLogo(darkLogo);
+    } else {
+      setLogo(logo);
+    }
     const handleClickOutside = (e) => {
       if (!e.target.closest(".menu-btn")) setIsOpen(false);
     };
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
+  }, [modeToggled]);
 
   useEffect(() => {
     const user = localStorage.getItem("user");
@@ -42,7 +49,7 @@ const Header = () => {
   const Brand = () => (
     <div className="flex items-center justify-between py-4 px-4 md:px-0 md:block">
       <a href="/">
-        <img src={logo} alt="StegoShield logo" className="w-32 h-auto" />
+        <img src={Logo} alt="StegoShield logo" className="w-44 h-auto" />
       </a>
       <div className="md:hidden">
         <button
@@ -69,17 +76,17 @@ const Header = () => {
 
   const navigation = isLoggedIn
     ? [
-        { title: "Dashboard", path: "/dashboard" },
-        { title: "Predict", path: "/upload" },
-        { title: "Blog", path: "/blog" },
-        { title: "How It Works", path: "/how-it-works" },
-      ]
+      { title: "Dashboard", path: "/dashboard" },
+      { title: "Predict", path: "/upload" },
+      { title: "Blog", path: "/blog" },
+      { title: "How It Works", path: "/how-it-works" },
+    ]
     : [
-        { title: "Home", path: "/" },
-        { title: "Features", path: "/#features" },
-        { title: "Customers", path: "/#customers" },
-        { title: "Contact", path: "/#contact" },
-      ];
+      { title: "Home", path: "/" },
+      { title: "Features", path: "/#features" },
+      { title: "Customers", path: "/#customers" },
+      { title: "Contact", path: "/#contact" },
+    ];
 
   return (
     <header className="relative z-10 bg-blue-50 dark:bg-gray-900 text-gray-800 dark:text-white transition-all">
@@ -89,22 +96,20 @@ const Header = () => {
       </div>
 
       <nav
-        className={`pb-5 md:text-sm ${
-          isOpen
-            ? "absolute top-0 inset-x-0 bg-white dark:bg-gray-900 shadow-lg rounded-xl border dark:border-gray-700 mx-2 mt-2 md:static md:shadow-none md:border-none md:mx-0"
-            : ""
-        }`}
+        className={`pb-5 md:text-sm ${isOpen
+          ? "absolute top-0 inset-x-0 bg-white dark:bg-gray-900 shadow-lg rounded-xl border dark:border-gray-700 mx-2 mt-2 md:static md:shadow-none md:border-none md:mx-0"
+          : ""
+          }`}
       >
         <div className="max-w-screen-1xl mx-auto px-4 sm:px-6 lg:px-3 xl:px-4 md:flex md:items-center md:justify-between md:px-6 md:py-4">
           <Brand />
 
           {/* Nav Links */}
           <div
-            className={`md:flex items-center space-y-6 md:space-y-0 md:space-x-6 ${
-              isOpen
-                ? "flex flex-col items-center justify-center mt-6"
-                : "hidden md:block"
-            }`}
+            className={`md:flex items-center space-y-6 md:space-y-0 md:space-x-6 ${isOpen
+              ? "flex flex-col items-center justify-center mt-6"
+              : "hidden md:block"
+              }`}
           >
             <ul className="flex flex-col items-center space-y-6 md:flex-row md:space-y-0 md:space-x-6">
               {navigation.map((item, idx) => (
