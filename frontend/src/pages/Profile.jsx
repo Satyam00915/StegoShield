@@ -40,6 +40,7 @@ const Profile = () => {
       avatar: "",
       theme: "light",
     };
+
     setProfile({ ...user, password: "", oldPassword: "" });
     setLastUpdated(localStorage.getItem("lastUpdated") || "");
   }, []);
@@ -98,6 +99,7 @@ const Profile = () => {
 
       const data = await res.json();
       localStorage.setItem("user", JSON.stringify(data));
+      localStorage.setItem("theme", data.theme);
       const timestamp = new Date().toLocaleString();
       localStorage.setItem("lastUpdated", timestamp);
       setLastUpdated(timestamp);
@@ -293,9 +295,8 @@ const Profile = () => {
                   </div>
                   <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                     <div
-                      className={`h-2 rounded-full ${strengthColors[strength]} ${
-                        strength === "Strong" ? "w-full" : strength === "Medium" ? "w-2/3" : "w-1/3"
-                      } transition-all duration-500`}
+                      className={`h-2 rounded-full ${strengthColors[strength]} ${strength === "Strong" ? "w-full" : strength === "Medium" ? "w-2/3" : "w-1/3"
+                        } transition-all duration-500`}
                     ></div>
                   </div>
                   <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
