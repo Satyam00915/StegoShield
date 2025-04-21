@@ -477,23 +477,7 @@ const Blog = () => {
             </div>
           </div>
 
-          {/* Popular Topics */}
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">
-              Popular Topics
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {["Steganalysis", "AI Detection", "Malware", "Forensics", "Encryption", "Cyber Threats"].map((topic) => (
-                <button
-                  key={topic}
-                  onClick={() => setSearchQuery(topic)}
-                  className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                >
-                  {topic}
-                </button>
-              ))}
-            </div>
-          </div>
+          
 
           {/* Blog Grid */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -588,8 +572,8 @@ const Blog = () => {
           {/* Newsletter Subscription */}
           <div className="mt-16 bg-gradient-to-r from-[#0e4f63] to-[#34737e] dark:from-gray-800 dark:to-gray-700 rounded-xl p-8 text-white">
             <div className="max-w-2xl mx-auto text-center">
-              <h3 className="text-2xl font-bold mb-2">Stay Updated</h3>
-              <p className="mb-6 opacity-90">
+              <h3 className="text-3xl font-bold mb-2">Stay Updated</h3>
+              <p className="mb-6 text-lg">
                 Subscribe to our newsletter for the latest articles, research, and security insights.
               </p>
               <div className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">

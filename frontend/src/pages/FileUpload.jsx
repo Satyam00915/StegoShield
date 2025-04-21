@@ -442,7 +442,7 @@ const FileUpload = () => {
                   {result.result}
                 </span>
               </div>
-              <span className="text-xs bg-white dark:bg-gray-700 px-2 py-1 rounded-full">
+              <span className="text-xs bg-white dark:bg-gray-700 px-2 py-1 rounded-full dark:text-gray-400 ">
                 {(result.confidence * 100).toFixed(2)}%
               </span>
             </div>

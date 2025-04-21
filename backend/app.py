@@ -536,6 +536,7 @@ def detect():
     
 @app.route("/api/history", methods=["GET"])
 def get_user_history():
+    print("hello")
     user_id = request.args.get("user_id")
 
     if not user_id:
@@ -547,12 +548,13 @@ def get_user_history():
 
         # Fetch from uploads table for dashboard history
         cursor.execute("""
-            SELECT id, filename, filetype, result, file_url, created_at 
+            SELECT id, filename, filetype, result, file_url, created_at , file_size 
             FROM uploads 
             WHERE user_id = %s
             ORDER BY created_at DESC
         """, (user_id,))
         rows = cursor.fetchall()
+        print(rows)
 
         history = []
         for row in rows:
@@ -563,6 +565,7 @@ def get_user_history():
                 "result": row[3],
                 "url": row[4],
                 "date": row[5].strftime("%Y-%m-%d %H:%M:%S") if row[5] else None,
+                "size": row[6],
             })
 
         # Optionally add confidence from `results` table if needed:

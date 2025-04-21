@@ -6,7 +6,7 @@ import toast, { Toaster } from "react-hot-toast";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useAuth } from "../context/AuthContext";
-import { FileText, ShieldCheck, ShieldX, X, Download, Trash2, Filter, Calendar, BarChart2, Activity } from "lucide-react";
+import { FileText, ShieldCheck, ShieldX, X, Download, Trash2, Filter, Calendar, BarChart2, Activity, MessageSquare, Send, Bot } from "lucide-react";
 import { Line, Pie, Bar, Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -47,14 +47,17 @@ const Dashboard = () => {
   const [fileToDelete, setFileToDelete] = useState(null);
   const fullText = `Welcome back, ${user?.name || "User"}!`;
   const [typedText, setTypedText] = useState("");
-  const [activeChart, setActiveChart] = useState("pie"); // 'pie' or 'doughnut'
+  const [activeChart, setActiveChart] = useState("pie");
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [inputMessage, setInputMessage] = useState("");
+  const [isLoadingResponse, setIsLoadingResponse] = useState(false);
 
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
-
 
     if (!storedUser) {
       toast.error("You need to be logged in to access this page.");
@@ -72,6 +75,7 @@ const Dashboard = () => {
         localStorage.setItem("uploadHistory", JSON.stringify(data));
         const sortedHistory = data.sort((a, b) => new Date(b.date) - new Date(a.date));
         setHistory(sortedHistory);
+        console.log("History fetched:", sortedHistory);
         setFilteredHistory(sortedHistory);
       })
       .catch(err => {
@@ -81,24 +85,30 @@ const Dashboard = () => {
 
     setUser(storedUser);
 
+    // Initialize with welcome message
+    setMessages([
+      {
+        id: 1,
+        text: `Hi ${storedUser?.name || "User"}! I'm your StegoShield AI assistant. How can I help you with your steganography analysis today?`,
+        sender: "bot",
+        timestamp: new Date().toISOString()
+      }
+    ]);
   }, [isLoggedIn]);
 
   useEffect(() => {
     let filtered = [...history];
   
-    // Filter by result (Safe/Malicious)
     if (activeFilter !== "All") {
       filtered = filtered.filter((item) => item.result === activeFilter);
     }
   
-    // Filter by search query
     if (searchQuery.trim() !== "") {
       filtered = filtered.filter((item) =>
         item.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
   
-    // Filter by selected date (exact match)
     if (selectedDate) {
       filtered = filtered.filter((item) => {
         const itemDate = new Date(item.date).toDateString();
@@ -147,16 +157,14 @@ const Dashboard = () => {
       if (index === fullText.length) {
         clearInterval(interval);
       }
-    }, 80); // typing speed (ms per letter)
+    }, 80);
 
-    return () => clearInterval(interval); // cleanup if component unmounts
+    return () => clearInterval(interval);
   }, [fullText]);
-
 
   const deleteFile = (index) => {
     const fileToDelete = filteredHistory[index];
     
-    // First find the corresponding item in the full history to get the database ID
     const dbItem = history.find(item => 
       item.name === fileToDelete.name && 
       item.date === fileToDelete.date
@@ -173,7 +181,6 @@ const Dashboard = () => {
     })
     .then(response => {
       if (!response.ok) throw new Error('Failed to delete from database');
-      // Update local state
       const updatedHistory = history.filter(item => item.id !== dbItem.id);
       localStorage.setItem("uploadHistory", JSON.stringify(updatedHistory));
       setHistory(updatedHistory);
@@ -189,7 +196,91 @@ const Dashboard = () => {
   const clearFilters = () => {
     setSearchQuery("");
     setActiveFilter("All");
-    setDateRange({ start: null, end: null });
+    setSelectedDate("");
+  };
+
+  // Chatbot functions
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim()) return;
+
+    const userMessage = {
+      id: messages.length + 1,
+      text: inputMessage,
+      sender: "user",
+      timestamp: new Date().toISOString()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInputMessage("");
+    setIsLoadingResponse(true);
+
+    try {
+      // Simulate API call to chatbot service
+      setTimeout(() => {
+        const botResponse = generateBotResponse(inputMessage);
+        setMessages(prev => [...prev, {
+          id: messages.length + 2,
+          text: botResponse,
+          sender: "bot",
+          timestamp: new Date().toISOString()
+        }]);
+        setIsLoadingResponse(false);
+      }, 1000);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      setMessages(prev => [...prev, {
+        id: messages.length + 2,
+        text: "Sorry, I encountered an error. Please try again.",
+        sender: "bot",
+        timestamp: new Date().toISOString()
+      }]);
+      setIsLoadingResponse(false);
+    }
+  };
+
+  const generateBotResponse = (message) => {
+    const lowerMessage = message.toLowerCase();
+    
+    if (lowerMessage.includes("help") || lowerMessage.includes("support")) {
+      return "I can help you analyze files, explain steganography techniques, and interpret your scan results. What specific assistance do you need?";
+    }
+    
+    if (lowerMessage.includes("steganography") || lowerMessage.includes("hide")) {
+      return "Steganography is the practice of concealing messages or information within other non-secret text or data. Common techniques include LSB (Least Significant Bit) in images, whitespace manipulation in text, and frequency domain manipulation in audio files.";
+    }
+    
+    if (lowerMessage.includes("malicious") || lowerMessage.includes("danger")) {
+      return "Malicious steganography can be used to hide harmful payloads. Our system checks for common steganographic patterns, unusual file entropy, and hidden data signatures. For your recent scans, I can see " + 
+             (summary.Malicious ? `you've detected ${summary.Malicious} malicious files.` : "no malicious files detected.");
+    }
+    
+    if (lowerMessage.includes("safe") || lowerMessage.includes("clean")) {
+      return "Safe files show no signs of hidden data or steganographic manipulation. Our system verifies this through multiple detection methods. You currently have " + 
+             (summary.Safe ? `${summary.Safe} clean files in your history.` : "no clean files recorded yet.");
+    }
+    
+    if (lowerMessage.includes("confidence") || lowerMessage.includes("accuracy")) {
+      return "Confidence scores represent our certainty about the detection result, based on multiple analysis factors. Higher values (closer to 100%) indicate stronger certainty. The average confidence in your scans is " +
+             (filteredHistory.length > 0 ? `${((filteredHistory.reduce((sum, item) => sum + item.confidence, 0) / filteredHistory.length) * 100).toFixed(2)}%.` : "not available yet.");
+    }
+    
+    if (lowerMessage.includes("history") || lowerMessage.includes("scan")) {
+      return `You have ${filteredHistory.length} files in your current filtered history. ` + 
+             (filteredHistory.length > 0 ? `The most recent was "${filteredHistory[0].name}" scanned on ${new Date(filteredHistory[0].date).toLocaleDateString()}.` : "");
+    }
+    
+    if (lowerMessage.includes("hi") || lowerMessage.includes("hello") || lowerMessage.includes("hey")) {
+      return `Hello ${user?.name || "there"}! How can I assist you with your steganography analysis today?`;
+    }
+    
+    return "I'm your StegoShield AI assistant. I can help explain your scan results, discuss steganography techniques, or analyze your file history. Could you clarify your question?";
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
   };
 
   // Chart data configurations
@@ -250,22 +341,22 @@ const Dashboard = () => {
       <div className="max-w-7xl 2xl:max-w-[1800px] mx-auto space-y-6 mt-4 ">
         {/* Welcome Header */}
         <div className="flex justify-between items-center">
-        <motion.h2
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-[#113742] to-[#8fbcc4] bg-clip-text text-transparent dark:from-[#113742] dark:to-[#8fbcc4]"
-        >
-          <span className="inline-flex items-center">
-            <Typewriter
-              words={[`Welcome back, ${user?.name || "User"}!`]}
-              typeSpeed={70}
-              cursor={false}
-              loop={false}
-            />
-            <span className="ml-1 w-2 h-6 bg-[#8fbcc4] dark:bg-[#8fbcc4] animate-blink rounded-sm" />
-          </span>
-        </motion.h2>
+          <motion.h2
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-[#113742] to-[#8fbcc4] bg-clip-text text-transparent dark:from-[#113742] dark:to-[#8fbcc4]"
+          >
+            <span className="inline-flex items-center">
+              <Typewriter
+                words={[`Welcome back, ${user?.name || "User"}!`]}
+                typeSpeed={70}
+                cursor={false}
+                loop={false}
+              />
+              <span className="ml-1 w-2 h-6 bg-[#8fbcc4] dark:bg-[#8fbcc4] animate-blink rounded-sm" />
+            </span>
+          </motion.h2>
 
           <div className="flex gap-2">
             <button
@@ -386,7 +477,6 @@ const Dashboard = () => {
                   max={new Date().toISOString().split('T')[0]}
                 />
               </div>
-
 
               <button
                 onClick={clearFilters}
@@ -561,7 +651,7 @@ const Dashboard = () => {
                               {item.name.length > 30 ? `${item.name.substring(0, 30)}...` : item.name}
                             </div>
                             <div className="text-sm text-gray-500 dark:text-gray-400">
-                            {item.file_size ? `${(item.file_size / 1024).toFixed(2)} KB` : 'Size unavailable'}
+                              {item.size ? `${(item.size / 1024).toFixed(2)} KB` : 'Size unavailable'}
                             </div>
                           </div>
                         </div>
@@ -673,11 +763,11 @@ const Dashboard = () => {
                   <div className="mt-2 space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600 dark:text-gray-300">File Type:</span>
-                      <span className="font-medium">{selectedFile.type || "Unknown"}</span>
+                      <span className="font-medium dark:text-gray-400">{selectedFile.type || "Unknown"}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600 dark:text-gray-300">File Size:</span>
-                      <span className="font-medium">{selectedFile.file_size ? `${(selectedFile.file_size / 1024).toFixed(2)} KB` : 'Size unavailable'}</span>
+                      <span className="font-medium dark:text-gray-400">{selectedFile.file_size ? `${(selectedFile.file_size / 1024).toFixed(2)} KB` : 'Size unavailable'}</span>
                     </div>
                   </div>
                 </div>
@@ -687,17 +777,17 @@ const Dashboard = () => {
                   <div className="mt-2 space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600 dark:text-gray-300">Analysis Date:</span>
-                      <span className="font-medium">{new Date(selectedFile.date).toLocaleString()}</span>
+                      <span className="font-medium dark:text-gray-400">{new Date(selectedFile.date).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600 dark:text-gray-300">Analysis Version:</span>
-                      <span className="font-medium">v2.1.4</span>
+                      <span className="font-medium dark:text-gray-400">v2.1.4</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6 flex justify-end gap-3">
+              <div className="mt-6 flex justify-center gap-3">
                 <button
                   onClick={() => setIsModalOpen(false)}
                   className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
@@ -763,8 +853,91 @@ const Dashboard = () => {
             </div>
           </motion.div>
         </div>
-        
       )}
+
+      {/* AI Chatbot Floating Button */}
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setIsChatOpen(true)}
+        className="fixed bottom-6 right-6 bg-blue-600 text-white p-4 rounded-full shadow-lg z-40 flex items-center justify-center"
+      >
+        <MessageSquare size={24} />
+      </motion.button>
+
+      {/* AI Chatbot Modal */}
+      {isChatOpen && (
+        <div className="fixed bottom-6 right-6 w-full max-w-md h-[500px] bg-white dark:bg-gray-800 rounded-xl shadow-xl z-50 flex flex-col border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="bg-blue-600 dark:bg-blue-700 text-white p-4 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <Bot size={20} />
+              <h3 className="font-semibold">StegoShield AI Assistant</h3>
+            </div>
+            <button onClick={() => setIsChatOpen(false)} className="text-white hover:text-blue-200">
+              <X size={20} />
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {messages.map((message) => (
+              <motion.div
+                key={message.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`max-w-[80%] rounded-lg p-3 ${message.sender === 'user'
+                    ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+                    }`}
+                >
+                  <p>{message.text}</p>
+                  <p className="text-xs mt-1 opacity-70">
+                    {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+            {isLoadingResponse && (
+              <div className="flex justify-start">
+                <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3 max-w-[80%]">
+                  <div className="flex space-x-2">
+                    <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce"></div>
+                    <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask me about steganography..."
+                className="flex-1 p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                disabled={isLoadingResponse}
+              />
+              <button
+                onClick={handleSendMessage}
+                disabled={!inputMessage.trim() || isLoadingResponse}
+                className="p-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-400 dark:disabled:bg-blue-800 transition"
+              >
+                <Send size={20} />
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              Ask about your scan results, steganography techniques, or analysis methods.
+            </p>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </div>
   );
