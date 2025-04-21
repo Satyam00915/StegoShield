@@ -70,6 +70,7 @@ CORS(app, supports_credentials=True, origins=[
 ])
 
 
+
 app.secret_key = "your-secret-key"  # Replace with a strong secret key
 
 cred = credentials.Certificate("firebase_config.json")
@@ -77,6 +78,10 @@ firebase_admin.initialize_app(cred)
 
 # Load model once at startup
 #model = load_model()
+
+@app.route('/ping')
+def ping():
+    return "Pong!", 200
 
 # --------------------- DATABASE TEST ROUTE ---------------------
 
