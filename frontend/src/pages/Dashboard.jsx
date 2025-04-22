@@ -868,7 +868,7 @@ const Dashboard = () => {
       {/* AI Chatbot Modal */}
       {isChatOpen && (
         <div className="fixed bottom-6 right-6 w-full max-w-md h-[500px] bg-white dark:bg-gray-800 rounded-xl shadow-xl z-50 flex flex-col border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div className="bg-blue-600 dark:bg-blue-700 text-white p-4 flex justify-between items-center">
+          <div className="bg-blue-600 dark:bg-gray-900 text-white p-4 flex justify-between items-center">
             <div className="flex items-center gap-2">
               <Bot size={20} />
               <h3 className="font-semibold">StegoShield AI Assistant</h3>
