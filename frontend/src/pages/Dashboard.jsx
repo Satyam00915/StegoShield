@@ -867,17 +867,22 @@ const Dashboard = () => {
 
       {/* AI Chatbot Modal */}
       {isChatOpen && (
-        <div className="fixed bottom-6 right-6 w-full max-w-md h-[500px] bg-white dark:bg-gray-800 rounded-xl shadow-xl z-50 flex flex-col border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="fixed inset-0 md:bottom-6 md:right-6 md:inset-auto md:w-[400px] md:h-[500px] w-full h-full bg-white dark:bg-gray-800 md:rounded-xl shadow-xl z-50 flex flex-col border border-gray-200 dark:border-gray-700 overflow-hidden">
+          {/* Header */}
           <div className="bg-blue-600 dark:bg-gray-900 text-white p-4 flex justify-between items-center">
             <div className="flex items-center gap-2">
               <Bot size={20} />
               <h3 className="font-semibold">StegoShield AI Assistant</h3>
             </div>
-            <button onClick={() => setIsChatOpen(false)} className="text-white hover:text-blue-200">
+            <button 
+              onClick={() => setIsChatOpen(false)} 
+              className="text-white hover:text-blue-200"
+            >
               <X size={20} />
             </button>
           </div>
 
+          {/* Messages Container */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.map((message) => (
               <motion.div
@@ -887,12 +892,12 @@ const Dashboard = () => {
                 className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg p-3 ${message.sender === 'user'
+                  className={`max-w-[90%] md:max-w-[80%] rounded-lg p-3 ${message.sender === 'user'
                     ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                     }`}
                 >
-                  <p>{message.text}</p>
+                  <p className="text-sm md:text-base">{message.text}</p>
                   <p className="text-xs mt-1 opacity-70">
                     {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
@@ -901,7 +906,7 @@ const Dashboard = () => {
             ))}
             {isLoadingResponse && (
               <div className="flex justify-start">
-                <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3 max-w-[80%]">
+                <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3 max-w-[90%] md:max-w-[80%]">
                   <div className="flex space-x-2">
                     <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce"></div>
                     <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0.2s' }}></div>
@@ -912,6 +917,7 @@ const Dashboard = () => {
             )}
           </div>
 
+          {/* Input Area */}
           <div className="p-4 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-2">
               <input
@@ -920,7 +926,7 @@ const Dashboard = () => {
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask me about steganography..."
-                className="flex-1 p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                className="flex-1 p-2 text-sm md:text-base rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
                 disabled={isLoadingResponse}
               />
               <button
@@ -937,7 +943,6 @@ const Dashboard = () => {
           </div>
         </div>
       )}
-
       <Footer />
     </div>
   );

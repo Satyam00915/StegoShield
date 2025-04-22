@@ -208,7 +208,10 @@ const FileUpload = () => {
         item.result.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesTab = activeTab === "all" || 
         (activeTab === "malicious" && item.result === "Malicious") || 
-        (activeTab === "safe" && item.result === "Safe");
+        (activeTab === "safe" && item.result === "Safe") ||
+        (activeTab === "image" && (item.scanType === "image" || item.name.match(/\.(png|jpg|jpeg|gif|webp)$/i))) ||
+        (activeTab === "audio" && (item.scanType === "audio" || item.name.match(/\.(mp3|wav|ogg|flac|aac)$/i))) ||
+        (activeTab === "video" && (item.scanType === "video" || item.name.match(/\.(mp4|mov|avi|mkv|webm)$/i)));
       const matchesFavorite = !isFavoriteView || item.isFavorite;
       return matchesSearch && matchesTab && matchesFavorite;
     })
@@ -635,7 +638,7 @@ const FileUpload = () => {
                     className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-400 rounded-lg transition"
                     disabled={history.length === 0}
                   >
-                    Clear
+                    Clear History
                   </button>
                 </div>
               </div>
@@ -643,40 +646,22 @@ const FileUpload = () => {
 
             {/* History Filter Tabs */}
             <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-              <button
-                onClick={() => setActiveTab("all")}
-                className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${activeTab === "all" ? "bg-[#113742] text-white" : "bg-gray-200 dark:bg-gray-700 dark:text-gray-400"}`}
-              >
+              <button onClick={() => setActiveTab("all")} className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${activeTab === "all" ? "bg-[#113742] text-white" : "bg-gray-200 dark:bg-gray-700 dark:text-gray-400"}`}>
                 All Scans
               </button>
-              <button
-                onClick={() => setActiveTab("safe")}
-                className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${activeTab === "safe" ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300" : "bg-gray-200 dark:bg-gray-700 dark:text-gray-400"}`}
-              >
+              <button onClick={() => setActiveTab("safe")} className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${activeTab === "safe" ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300" : "bg-gray-200 dark:bg-gray-700 dark:text-gray-400"}`}>
                 Safe Files
               </button>
-              <button
-                onClick={() => setActiveTab("malicious")}
-                className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${activeTab === "malicious" ? "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300" : "bg-gray-200 dark:bg-gray-700 dark:text-gray-400"}`}
-              >
+              <button onClick={() => setActiveTab("malicious")} className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${activeTab === "malicious" ? "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300" : "bg-gray-200 dark:bg-gray-700 dark:text-gray-400"}`}>
                 Threats
               </button>
-              <button
-                onClick={() => setActiveTab("image")}
-                className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${activeTab === "image" ? "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300" : "bg-gray-200 dark:bg-gray-700 dark:text-gray-400"}`}
-              >
+              <button onClick={() => setActiveTab("image")} className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${activeTab === "image" ? "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300" : "bg-gray-200 dark:bg-gray-700 dark:text-gray-400"}`}>
                 Images
               </button>
-              <button
-                onClick={() => setActiveTab("audio")}
-                className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${activeTab === "audio" ? "bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300" : "bg-gray-200 dark:bg-gray-700 dark:text-gray-400"}`}
-              >
+              <button onClick={() => setActiveTab("audio")} className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${activeTab === "audio" ? "bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300" : "bg-gray-200 dark:bg-gray-700 dark:text-gray-400"}`}>
                 Audio
               </button>
-              <button
-                onClick={() => setActiveTab("video")}
-                className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${activeTab === "video" ? "bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300" : "bg-gray-200 dark:bg-gray-700 dark:text-gray-400"}`}
-              >
+              <button onClick={() => setActiveTab("video")} className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap ${activeTab === "video" ? "bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300" : "bg-gray-200 dark:bg-gray-700 dark:text-gray-400"}`}>
                 Videos
               </button>
             </div>
