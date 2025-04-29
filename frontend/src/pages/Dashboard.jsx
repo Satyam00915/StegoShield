@@ -869,7 +869,7 @@ const Dashboard = () => {
       {isChatOpen && (
         <div className="fixed inset-0 md:bottom-6 md:right-6 md:inset-auto md:w-[400px] md:h-[500px] w-full h-full bg-white dark:bg-gray-800 md:rounded-xl shadow-xl z-50 flex flex-col border border-gray-200 dark:border-gray-700 overflow-hidden">
           {/* Header */}
-          <div className="bg-blue-600 dark:bg-gray-900 text-white p-4 flex justify-between items-center">
+          <div className="bg-[#113742] dark:bg-gray-900 text-white p-4 flex justify-between items-center">
             <div className="flex items-center gap-2">
               <Bot size={20} />
               <h3 className="font-semibold">StegoShield AI Assistant</h3>
@@ -893,7 +893,7 @@ const Dashboard = () => {
               >
                 <div
                   className={`max-w-[90%] md:max-w-[80%] rounded-lg p-3 ${message.sender === 'user'
-                    ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200'
+                    ? 'bg-blue-100 dark:bg-blue-900/50 text-[#113742] dark:text-blue-200'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                     }`}
                 >
@@ -932,7 +932,7 @@ const Dashboard = () => {
               <button
                 onClick={handleSendMessage}
                 disabled={!inputMessage.trim() || isLoadingResponse}
-                className="p-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-400 dark:disabled:bg-blue-800 transition"
+                className="p-2 rounded-lg bg-[#113742] text-white hover:bg-gray-700 disabled:bg-[#113742]dark:disabled:bg-blue-800 transition"
               >
                 <Send size={20} />
               </button>
